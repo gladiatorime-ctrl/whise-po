@@ -62,7 +62,7 @@ export default function Layout() {
           <div className="flex h-16 items-center gap-3">
             <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="На главную">
               <ShoppingBag className="h-6 w-6 text-primary" />
-              <span className="font-display text-xl font-semibold tracking-tight">Базар</span>
+              <span className="font-display text-xl font-semibold tracking-tight">Рынок</span>
             </Link>
 
             <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md ml-6">
@@ -156,7 +156,7 @@ export default function Layout() {
 
       <footer className="border-t mt-12">
         <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-muted-foreground flex flex-wrap gap-4 items-center justify-between">
-          <span className="font-display text-base font-semibold text-foreground">Базар</span>
+          <span className="font-display text-base font-semibold text-foreground">Рынок</span>
           <span>Маркетплейс для продавцов и покупателей</span>
         </div>
       </footer>
