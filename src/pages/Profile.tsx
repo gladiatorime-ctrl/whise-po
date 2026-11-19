@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { uploadFile } from '../lib/upload'; // Подключаем нашу функцию загрузки
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
