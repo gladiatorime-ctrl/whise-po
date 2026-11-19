@@ -27,7 +27,6 @@ jobs:
 
       - run: npm install
       
-      # ВАЖНО: Оба ключа теперь берутся из secrets (без буквы s в конце)
       - run: npm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
