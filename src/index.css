@@ -48,3 +48,24 @@
     font-family: "Playfair Display", Georgia, serif;
   }
 }
+:root {
+  --radius: 0.5rem;
+  --border: 0 0% 91%;
+  --muted: 0 0% 97%;
+  --muted-foreground: 0 0% 42%;
+  --primary: 0 0% 9%;
+  --primary-foreground: 0 0% 100%;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-neutral-900 antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  h1, h2, h3 {
+    @apply font-semibold tracking-tight;
+  }
+  button, input, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
