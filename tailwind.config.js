@@ -5,9 +5,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Golos Text"', 'system-ui', 'sans-serif'],
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-      },
+  sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+  display: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
