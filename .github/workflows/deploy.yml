@@ -26,9 +26,11 @@ jobs:
           cache: npm
 
       - run: npm install
+      
+      # ВАЖНО: Оба ключа теперь берутся из secrets (без буквы s в конце)
       - run: npm run build
         env:
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - run: cp dist/index.html dist/404.html
