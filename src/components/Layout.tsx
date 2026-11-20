@@ -1,16 +1,14 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
-import { Menu, Search, ShoppingBag, UserRound, X } from 'lucide-react'
+import { Bell, Heart, LayoutGrid, LogOut, Shield, ShoppingBag, Store, UserRound } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 export default function Layout() {
   const { user, profile, isAdmin, signOut } = useAuth()
   const navigate = useNavigate()
-  const [q, setQ] = useState('')
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [unread, setUnread] = useState(0)
 
   useEffect(() => {
@@ -26,140 +24,177 @@ export default function Layout() {
       .then(({ count }) => setUnread(count ?? 0))
   }, [user])
 
-  const onSearch = (e: FormEvent) => {
-    e.preventDefault()
-    navigate(q.trim() ? `/catalog?q=${encodeURIComponent(q.trim())}` : '/catalog')
-    setMenuOpen(false)
+  const handleSignOut = () => {
+    setProfileOpen(false)
+    signOut()
+    navigate('/')
   }
 
-  const links = (
+  const displayName = profile?.name?.trim() || user?.email?.split('@')[0] || 'Профиль'
+
+  const desktopLinks = (
     <>
-      <NavLink to="/catalog" onClick={() => setMenuOpen(false)} className={navCls}>
+      <NavLink to="/catalog" className={navCls}>
         Каталог
       </NavLink>
       {user && (
         <>
-          <NavLink to="/favorites" onClick={() => setMenuOpen(false)} className={navCls}>
+          <NavLink to="/favorites" className={navCls}>
             Избранное
           </NavLink>
-          <NavLink to="/notifications" onClick={() => setMenuOpen(false)} className={navCls}>
-            Уведомления{unread > 0 && <span className="ml-1 text-primary font-semibold">({unread})</span>}
+          <NavLink to="/notifications" className={navCls}>
+            Уведомления
+            {unread > 0 && <span className="ml-1 font-semibold text-primary">({unread})</span>}
           </NavLink>
         </>
       )}
       {isAdmin && (
-        <NavLink to="/admin" onClick={() => setMenuOpen(false)} className={navCls}>
+        <NavLink to="/admin" className={navCls}>
           Админка
         </NavLink>
       )}
     </>
   )
 
+  const tabs = [
+    { to: '/catalog', label: 'Каталог', icon: LayoutGrid },
+    ...(user
+      ? [
+          { to: '/favorites', label: 'Избранное', icon: Heart },
+          { to: '/notifications', label: 'События', icon: Bell, badge: unread },
+          ...(isAdmin
+            ? [{ to: '/admin', label: 'Админка', icon: Shield }]
+            : [{ to: '/seller', label: 'Кабинет', icon: Store }]),
+          { to: '/profile', label: 'Профиль', icon: UserRound },
+        ]
+      : [{ to: '/auth', label: 'Войти', icon: UserRound }]),
+  ]
+
   return (
-    <div className="min-h-dvh flex flex-col">
+    <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex h-16 items-center gap-3">
-            <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="На главную">
+            <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="На главную">
               <ShoppingBag className="h-6 w-6 text-primary" />
               <span className="font-display text-xl font-semibold tracking-tight">Рынок</span>
             </Link>
 
-            <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md ml-6">
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Поиск по товарам…"
-                className="h-10"
-                aria-label="Поиск по товарам"
-              />
-            </form>
+            <nav className="ml-auto hidden items-center gap-5 text-sm font-medium lg:flex">
+              {desktopLinks}
+            </nav>
 
-            <nav className="ml-auto hidden lg:flex items-center gap-5 text-sm font-medium">{links}</nav>
-
-            <div className="ml-auto lg:ml-4 flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2 lg:ml-4">
               {user ? (
-                <div className="hidden sm:flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to={isAdmin ? '/admin' : '/seller'}>
-                      <UserRound className="h-4 w-4 mr-1" />
-                      {isAdmin ? 'Админка' : 'Кабинет продавца'}
-                    </Link>
-                  </Button>
+                <div className="relative z-40 hidden sm:block">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
-                    onClick={() => {
-                      signOut()
-                      navigate('/')
-                    }}
+                    onClick={() => setProfileOpen((v) => !v)}
+                    aria-expanded={profileOpen}
+                    aria-haspopup="menu"
                   >
-                    Выйти
+                    <UserRound className="mr-1.5 h-4 w-4" />
+                    <span className="max-w-[9rem] truncate">{displayName}</span>
                   </Button>
+
+                  {profileOpen && (
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setProfileOpen(false)} />
+                      <div
+                        role="menu"
+                        className="absolute right-0 top-full z-40 mt-2 w-52 rounded-md border bg-popover p-1 shadow-md"
+                      >
+                        <Link
+                          to="/profile"
+                          role="menuitem"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+                        >
+                          <UserRound className="h-4 w-4" />
+                          Профиль
+                        </Link>
+                        {!isAdmin && (
+                          <Link
+                            to="/seller"
+                            role="menuitem"
+                            onClick={() => setProfileOpen(false)}
+                            className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+                          >
+                            <Store className="h-4 w-4" />
+                            Кабинет продавца
+                          </Link>
+                        )}
+                        <button
+                          role="menuitem"
+                          onClick={handleSignOut}
+                          className="mt-1 flex w-full items-center gap-2 rounded-sm border-t px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Выйти
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 <Button size="sm" asChild>
                   <Link to="/auth">Войти</Link>
                 </Button>
               )}
-              <button
-                className="lg:hidden p-2 rounded-md hover:bg-accent"
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-label="Меню"
+
+              <Link
+                to={user ? '/profile' : '/auth'}
+                aria-label={user ? 'Профиль' : 'Войти'}
+                className="rounded-md p-2 hover:bg-accent sm:hidden"
               >
-                {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </button>
+                <UserRound className="h-5 w-5" />
+              </Link>
             </div>
           </div>
-
-          {menuOpen && (
-            <div className="lg:hidden border-t py-3 space-y-3">
-              <form onSubmit={onSearch} className="flex gap-2">
-                <Input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Поиск по товарам…"
-                  aria-label="Поиск по товарам"
-                />
-                <Button type="submit" size="icon" variant="outline" aria-label="Искать">
-                  <Search className="h-4 w-4" />
-                </Button>
-              </form>
-              <nav className="flex flex-col gap-1 text-sm font-medium">
-                {links}
-                {user && (
-                  <>
-                    <NavLink to="/profile" onClick={() => setMenuOpen(false)} className={navCls}>
-                      Профиль{profile?.name ? ` (${profile.name})` : ''}
-                    </NavLink>
-                    <button
-                      className="text-left px-2 py-1.5 text-muted-foreground"
-                      onClick={() => {
-                        signOut()
-                        setMenuOpen(false)
-                        navigate('/')
-                      }}
-                    >
-                      Выйти
-                    </button>
-                  </>
-                )}
-              </nav>
-            </div>
-          )}
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <Outlet />
       </main>
 
-      <footer className="border-t mt-12">
-        <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-muted-foreground flex flex-wrap gap-4 items-center justify-between">
+      <footer className="mt-12 border-t">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground">
           <span className="font-display text-base font-semibold text-foreground">Рынок</span>
           <span>Маркетплейс для продавцов и покупателей</span>
         </div>
       </footer>
+
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur md:hidden"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        aria-label="Основная навигация"
+      >
+        <div
+          className="grid"
+          style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+        >
+          {tabs.map((t) => (
+            <NavLink
+              key={t.to}
+              to={t.to}
+              className={({ isActive }) =>
+                'relative flex flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors ' +
+                (isActive ? 'text-primary' : 'text-muted-foreground')
+              }
+            >
+              <t.icon className="h-5 w-5" />
+              {t.label}
+              {'badge' in t && t.badge ? (
+                <span className="absolute right-1/2 top-1 flex h-4 min-w-4 translate-x-3 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                  {t.badge > 9 ? '9+' : t.badge}
+                </span>
+              ) : null}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
     </div>
   )
 }
