@@ -1,13 +1,38 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
-import { SearchX } from 'lucide-react'
+import { Search, SearchX, SlidersHorizontal, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import ProductCard from '@/components/ProductCard'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 import { CATEGORIES, GENDERS, SEASONS, type Product } from '@/types'
+
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={
+        'shrink-0 snap-start rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ' +
+        (active
+          ? 'border-primary bg-primary text-primary-foreground'
+          : 'border-border bg-background text-muted-foreground hover:border-foreground/30 hover:text-foreground')
+      }
+    >
+      {children}
+    </button>
+  )
+}
 
 export default function Catalog() {
   const { user } = useAuth()
@@ -15,6 +40,7 @@ export default function Catalog() {
   const [products, setProducts] = useState<Product[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const q = params.get('q') ?? ''
   const category = params.get('category') ?? 'all'
@@ -22,12 +48,26 @@ export default function Catalog() {
   const season = params.get('season') ?? 'all'
   const maxPrice = params.get('maxPrice') ?? ''
 
+  const [qInput, setQInput] = useState(q)
+
+  useEffect(() => {
+    setQInput(q)
+  }, [q])
+
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(params)
     if (value && value !== 'all') next.set(key, value)
     else next.delete(key)
     setParams(next, { replace: true })
   }
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (qInput !== q) setParam('q', qInput)
+    }, 250)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qInput])
 
   useEffect(() => {
     setLoading(true)
@@ -67,86 +107,42 @@ export default function Catalog() {
     })
   }
 
-  const filters = useMemo(
-    () => (
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="col-span-2 md:col-span-1">
-          <Label htmlFor="f-q" className="text-xs text-muted-foreground">Поиск</Label>
-          <Input id="f-q" value={q} onChange={(e) => setParam('q', e.target.value)} placeholder="Название…" />
-        </div>
-        <div>
-          <Label className="text-xs text-muted-foreground">Категория</Label>
-          <Select value={category} onValueChange={(v) => setParam('category', v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все</SelectItem>
-              {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-xs text-muted-foreground">Пол</Label>
-          <Select value={gender} onValueChange={(v) => setParam('gender', v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Любой</SelectItem>
-              {GENDERS.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-xs text-muted-foreground">Сезон</Label>
-          <Select value={season} onValueChange={(v) => setParam('season', v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Любой</SelectItem>
-              {SEASONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="f-price" className="text-xs text-muted-foreground">Цена до, ₽</Label>
-          <Input
-            id="f-price"
-            type="number"
-            min={0}
-            value={maxPrice}
-            onChange={(e) => setParam('maxPrice', e.target.value)}
-            placeholder="не ограничено"
-          />
-        </div>
-      </div>
-    ),
-    [q, category, gender, season, maxPrice]
+  const activeCount = useMemo(
+    () =>
+      (category !== 'all' ? 1 : 0) +
+      (gender !== 'all' ? 1 : 0) +
+      (season !== 'all' ? 1 : 0) +
+      (maxPrice ? 1 : 0),
+    [category, gender, season, maxPrice]
   )
+
+  const resetFilters = () => {
+    const next = new URLSearchParams(params)
+    ;['category', 'gender', 'season', 'maxPrice'].forEach((k) => next.delete(k))
+    setParams(next, { replace: true })
+  }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="font-display text-3xl font-semibold mb-6">Каталог</h1>
-      <div className="mb-8">{filters}</div>
+    <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-8">
+      <h1 className="mb-5 font-display text-3xl font-semibold">Каталог</h1>
 
-      {loading ? (
-        <p className="text-muted-foreground">Загрузка…</p>
-      ) : products.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
-          <SearchX className="h-10 w-10" />
-          <p>Ничего не найдено. Попробуйте изменить фильтры.</p>
-        </div>
-      ) : (
-        <>
-          <p className="text-sm text-muted-foreground mb-4">Найдено товаров: {products.length}</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                isFavorite={favorites.has(p.id)}
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
+      <div className="sticky top-16 z-30 -mx-4 mb-6 border-b bg-background/95 px-4 pb-3 backdrop-blur">
+        <div className="flex items-center gap-2 pt-3">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="f-q"
+              type="search"
+              enterKeyHint="search"
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
+              placeholder="Поиск по товарам…"
+              aria-label="Поиск по товарам"
+              className="h-10 pl-9 pr-9"
+            />
+            {qInput && (
+              <button
+                type="button"
+                onClick={() => setQInput('')}
+                aria-label="Очистить поиск"
+                className="absolute right-2 top-1/2 -
