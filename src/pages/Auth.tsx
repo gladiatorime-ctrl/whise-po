@@ -35,6 +35,7 @@ export default function Auth() {
         navigate('/catalog')
       }
     } catch (err) {
+      alert(err instanceof Error ? err.stack : String(err))
       toast.error(err instanceof Error ? err.message : 'Ошибка авторизации')
     } finally {
       setBusy(false)
@@ -90,4 +91,4 @@ export default function Auth() {
       </Tabs>
     </div>
   )
-}
+}       
