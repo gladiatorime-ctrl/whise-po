@@ -1,23 +1,22 @@
 import { createClient } from '@supabase/supabase-js'
-import { toast } from 'sonner'
 
-// Получаем переменные. В Vite они всегда начинаются с import.meta.env
-const url = import.meta.env.VITE_SUPABASE_URL
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// URL проекта Supabase. Он публичный, поэтому храним прямо в коде,
+// чтобы сборка не зависела от переменных окружения.
+const SUPABASE_URL = 'https://yyqnyjntbvzhxontepfg.supabase.co'
 
-// Проверка для отладки (если ключи есть, вы увидите их длину в консоли)
-console.log('Длина URL:', url ? url.length : 0)
-console.log('Длина ключа:', anonKey ? anonKey.length : 0)
+// Ключ тоже публичный, но берём из секрета, чтобы можно было менять без правки кода.
+const SUPABASE_ANON_KEY =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() || ''
 
-if (!url || !anonKey) {
-  toast.error('Ключи Supabase не загружены! Проверьте Secrets.')
-  console.error('ОШИБКА: Не заданы VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY')
+if (!SUPABASE_ANON_KEY) {
+  console.error('VITE_SUPABASE_ANON_KEY не задан при сборке — запросы упадут')
 }
 
-// Создаем клиент. Если url нет, ставим заглушку, чтобы не было ошибки
+console.log('[supabase] url =', SUPABASE_URL, '| длина ключа =', SUPABASE_ANON_KEY.length)
+
 export const supabase = createClient(
-  url || 'https://placeholder.supabase.co',
-  anonKey || 'placeholder',
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY || 'placeholder-anon-key',
   {
     auth: {
       persistSession: true,
