@@ -19,7 +19,7 @@ export default function ProductCard({
   onToggleFavorite: (id: string) => void
 }) {
   const { user } = useAuth()
-  const photo = product.product_photos?.sort((a, b) => a.position - b.position)[0]
+  const photo = [...(product.product_photos ?? [])].sort((a, b) => a.position - b.position)[0]
 
   const toggle = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -40,36 +40,48 @@ export default function ProductCard({
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group block border bg-card overflow-hidden transition-colors hover:border-foreground"
+      className="group flex flex-col overflow-hidden border bg-card transition-colors hover:border-foreground"
     >
-      <div className="aspect-square bg-secondary relative">
+      <div className="relative aspect-square w-full overflow-hidden bg-secondary">
         {photo ? (
           <img
             src={photo.url}
             alt={product.title}
-            className="h-full w-full object-cover"
+            className="absolute inset-0 block h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             loading="lazy"
+            decoding="async"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-muted-foreground text-sm">Нет фото</div>
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            Нет фото
+          </div>
         )}
+
+        {product.shops?.verified && (
+          <span className="absolute left-2 top-2 z-10 rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-medium leading-tight text-primary-foreground">
+            Проверенный
+          </span>
+        )}
+
         <button
           onClick={toggle}
           aria-label={isFavorite ? 'Убрать из избранного' : 'В избранное'}
-          className="absolute top-2 right-2 p-2 rounded-full bg-card/90 border hover:border-foreground transition-colors"
+          className="absolute right-2 top-2 z-10 rounded-full border bg-card/90 p-2 transition-colors hover:border-foreground"
         >
           <Heart className={`h-4 w-4 ${isFavorite ? 'fill-primary text-primary' : ''}`} />
         </button>
-        {product.shops?.verified && (
-          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-sm">
-            Проверенный магазин
-          </span>
-        )}
       </div>
-      <div className="p-3 space-y-1">
-        <div className="font-medium leading-snug line-clamp-2">{product.title}</div>
-        <div className="text-sm text-muted-foreground">{product.shops?.name}</div>
-        <div className="pt-1 font-semibold">{formatPrice(product.price)}</div>
+
+      <div className="flex flex-1 flex-col gap-1 p-3">
+        <div className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground">
+          {product.title}
+        </div>
+        {product.shops?.name && (
+          <div className="truncate text-xs text-muted-foreground">{product.shops.name}</div>
+        )}
+        <div className="mt-auto pt-2 text-sm font-medium tabular-nums">
+          {formatPrice(product.price)}
+        </div>
       </div>
     </Link>
   )
