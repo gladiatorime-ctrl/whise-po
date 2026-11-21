@@ -145,4 +145,69 @@ export default function Catalog() {
                 type="button"
                 onClick={() => setQInput('')}
                 aria-label="Очистить поиск"
-                className="absolute right-2 top-1/2 -
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-10 w-10 shrink-0 md:hidden"
+            onClick={() => setFiltersOpen(true)}
+            aria-label="Фильтры"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {activeCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                {activeCount}
+              </span>
+            )}
+          </Button>
+        </div>
+
+        {/* Быстрые фильтры категорий (видимые на десктопе) */}
+        <div className="hidden md:flex gap-2 overflow-x-auto pb-2 pt-3 no-scrollbar">
+          <Chip active={category === 'all'} onClick={() => setParam('category', 'all')}>
+            Все
+          </Chip>
+          {CATEGORIES.map((c) => (
+            <Chip key={c} active={category === c} onClick={() => setParam('category', c)}>
+              {c}
+            </Chip>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <SearchX className="mb-4 h-12 w-12 text-muted-foreground" />
+          <h2 className="text-lg font-semibold">Ничего не найдено</h2>
+          <p className="mt-1 text-muted-foreground">Попробуйте изменить параметры поиска</p>
+          {(q || activeCount > 0) && (
+            <Button variant="outline" className="mt-4" onClick={() => { setQInput(''); resetFilters(); }}>
+              Сбросить всё
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              isFavorite={favorites.has(product.id)}
+              onToggleFavorite={() => toggleFavorite(product.id)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
