@@ -76,23 +76,8 @@ export interface Report {
   profiles?: Profile
 }
 
-export const CATEGORIES = [
-  'Одежда',
-  'Обувь',
-  'Аксессуары',
-  'Косметика',
-  'Дом',
-  'Электроника',
-  'Спорт',
-  'Книги',
-  'Другое',
-] as const
-
-// Категории, где имеют смысл пол/сезон и размеры
-export const FASHION_CATEGORIES: readonly string[] = ['Одежда', 'Обувь', 'Аксессуары']
-export const SIZED_CATEGORIES: readonly string[] = ['Одежда', 'Обувь']
-export const isFashion = (c: string) => FASHION_CATEGORIES.includes(c)
-export const isSized = (c: string) => SIZED_CATEGORIES.includes(c)
+// Сайт только для одежды: категория у всех товаров одна и не выбирается
+export const CATEGORY = 'Одежда'
 
 export const GENDERS = ['Женское', 'Мужское', 'Унисекс'] as const
 export const SEASONS = ['Всесезон', 'Зима', 'Лето', 'Демисезон'] as const

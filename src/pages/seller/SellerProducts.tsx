@@ -89,7 +89,7 @@ export default function SellerProducts() {
                 <div className="min-w-0 flex-1">
                   <div className="font-medium truncate">{p.title}</div>
                   <div className="text-sm text-muted-foreground">
-                    {formatPrice(p.price)} · {p.category}
+                    {formatPrice(p.price)}
                   </div>
                 </div>
                 <span

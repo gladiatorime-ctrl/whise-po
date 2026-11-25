@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
-import { CATEGORIES, type Product } from '@/types'
+import type { Product } from '@/types'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -55,7 +55,7 @@ export default function Home() {
           Узнай, где есть нужная вещь —<br className="hidden md:block" /> не обходя все магазины
         </h1>
         <p className="mt-3 max-w-xl opacity-80">
-          Одежда, обувь, электроника, всё для дома. Ищи по категории и цене — и пиши продавцу сразу.
+          Сандалии ребёнку, куртка, брюки. Ищи по размеру и цене — и пиши продавцу сразу.
         </p>
         <form onSubmit={submit} className="mt-6 flex max-w-xl gap-2">
           <div className="relative flex-1">
@@ -65,7 +65,7 @@ export default function Home() {
               onChange={(e) => setQ(e.target.value)}
               type="search"
               enterKeyHint="search"
-              placeholder="Что ищем? Например, наушники или куртка"
+              placeholder="Что ищем? Например, сандалии"
               className="h-12 w-full rounded-xl bg-background pl-12 pr-3 text-foreground outline-none"
             />
           </div>
@@ -73,17 +73,6 @@ export default function Home() {
             Найти
           </Button>
         </form>
-        <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
-          {CATEGORIES.map((c) => (
-            <Link
-              key={c}
-              to={`/catalog?category=${encodeURIComponent(c)}`}
-              className="shrink-0 rounded-full border border-white/30 px-3.5 py-1.5 text-sm hover:bg-white/10"
-            >
-              {c}
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className="mt-10">
@@ -117,8 +106,8 @@ export default function Home() {
 
       <section className="mt-12 grid gap-4 md:grid-cols-3">
         {[
-          { i: Search, t: 'Ищи', d: 'По категории и цене — без звонков в каждый магазин.' },
-          { i: MapPin, t: 'Смотри, где лежит', d: 'Видишь магазин, адрес и то, что есть в наличии сейчас.' },
+          { i: Search, t: 'Ищи', d: 'По полу, сезону и цене — без звонков в каждый магазин.' },
+          { i: MapPin, t: 'Смотри, где лежит', d: 'Видишь магазин, адрес и размеры, которые есть сейчас.' },
           { i: MessageCircle, t: 'Пиши продавцу', d: 'Одна кнопка — и ты в MAX у продавца, вопрос уже скопирован.' },
         ].map(({ i: Icon, t, d }) => (
           <div key={t} className="rounded-2xl border p-5">

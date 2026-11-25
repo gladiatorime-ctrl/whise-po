@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import ProductCard from '@/components/ProductCard'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { CATEGORIES, GENDERS, SEASONS, type Product } from '@/types'
+import { GENDERS, SEASONS, type Product } from '@/types'
 
 function Chip({
   active,
@@ -42,7 +42,6 @@ export default function Catalog() {
   const [loading, setLoading] = useState(true)
 
   const q = params.get('q') ?? ''
-  const category = params.get('category') ?? 'all'
   const gender = params.get('gender') ?? 'all'
   const season = params.get('season') ?? 'all'
   const maxPrice = params.get('maxPrice') ?? ''
@@ -76,7 +75,6 @@ export default function Catalog() {
       .order('created_at', { ascending: false })
 
     if (q) query = query.ilike('title', `%${q}%`)
-    if (category !== 'all') query = query.eq('category', category)
     if (gender !== 'all') query = query.eq('gender', gender)
     if (season !== 'all') query = query.eq('season', season)
     if (maxPrice) query = query.lte('price', Number(maxPrice))
@@ -85,7 +83,7 @@ export default function Catalog() {
       setProducts((data as Product[]) ?? [])
       setLoading(false)
     })
-  }, [q, category, gender, season, maxPrice, user])
+  }, [q, gender, season, maxPrice, user])
 
   useEffect(() => {
     if (!user) {
@@ -108,16 +106,15 @@ export default function Catalog() {
 
   const activeCount = useMemo(
     () =>
-      (category !== 'all' ? 1 : 0) +
       (gender !== 'all' ? 1 : 0) +
       (season !== 'all' ? 1 : 0) +
       (maxPrice ? 1 : 0),
-    [category, gender, season, maxPrice]
+    [gender, season, maxPrice]
   )
 
   const resetFilters = () => {
     const next = new URLSearchParams(params)
-    ;['category', 'gender', 'season', 'maxPrice'].forEach((k) => next.delete(k))
+    ;['gender', 'season', 'maxPrice'].forEach((k) => next.delete(k))
     setParams(next, { replace: true })
   }
 
@@ -153,14 +150,14 @@ export default function Catalog() {
           
         </div>
 
-        {/* Быстрые фильтры категорий */}
+        {/* Быстрый фильтр по полу */}
         <div className="flex gap-2 overflow-x-auto pb-2 pt-3 no-scrollbar">
-          <Chip active={category === 'all'} onClick={() => setParam('category', 'all')}>
+          <Chip active={gender === 'all'} onClick={() => setParam('gender', 'all')}>
             Все
           </Chip>
-          {CATEGORIES.map((c) => (
-            <Chip key={c} active={category === c} onClick={() => setParam('category', c)}>
-              {c}
+          {GENDERS.map((g) => (
+            <Chip key={g} active={gender === g} onClick={() => setParam('gender', g)}>
+              {g}
             </Chip>
           ))}
         </div>

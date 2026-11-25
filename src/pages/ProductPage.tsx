@@ -114,7 +114,6 @@ export default function ProductPage() {
 
         <div className="space-y-5">
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary">{product.category}</Badge>
             {product.gender && <Badge variant="secondary">{product.gender}</Badge>}
             {product.season && <Badge variant="secondary">{product.season}</Badge>}
           </div>

@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { BUCKET, CATEGORIES, GENDERS, SEASONS, isFashion, isSized, type Photo, type Product, type Shop, type Size } from '@/types'
+import { BUCKET, CATEGORY, GENDERS, SEASONS, type Photo, type Product, type Shop, type Size } from '@/types'
 
 interface SizeRow {
   size: string
@@ -29,7 +29,6 @@ export default function SellerProductEdit() {
 
   const [title, setTitle] = useState('')
   const [price, setPrice] = useState('')
-  const [category, setCategory] = useState<string>(CATEGORIES[0])
   const [gender, setGender] = useState<string>('none')
   const [season, setSeason] = useState<string>('none')
   const [description, setDescription] = useState('')
@@ -55,7 +54,6 @@ export default function SellerProductEdit() {
         if (product) {
           setTitle(product.title)
           setPrice(String(product.price))
-          setCategory(product.category)
           setGender(product.gender ?? 'none')
           setSeason(product.season ?? 'none')
           setDescription(product.description ?? '')
@@ -143,9 +141,9 @@ export default function SellerProductEdit() {
       const payload = {
         title: title.trim(),
         price: Math.round(priceNum),
-        category,
-        gender: isFashion(category) && gender !== 'none' ? gender : null,
-        season: isFashion(category) && season !== 'none' ? season : null,
+        category: CATEGORY,
+        gender: gender === 'none' ? null : gender,
+        season: season === 'none' ? null : season,
         description: description.trim() || null,
         published,
       }
@@ -176,7 +174,7 @@ export default function SellerProductEdit() {
       }
 
       // Размеры
-      const cleanSizes = isSized(category) ? sizes.filter((s) => s.size.trim()) : []
+      const cleanSizes = sizes.filter((s) => s.size.trim())
       if (cleanSizes.length) {
         const { error } = await supabase
           .from('product_sizes')
@@ -215,26 +213,6 @@ export default function SellerProductEdit() {
               <Input id="p-price" type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} required />
             </div>
             <div className="space-y-1.5">
-              <Label>Категория</Label>
-              <Select
-                value={category}
-                onValueChange={(v) => {
-                  setCategory(v)
-                  if (!isFashion(v)) {
-                    setGender('none')
-                    setSeason('none')
-                  }
-                }}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            {isFashion(category) && (
-              <>
-            <div className="space-y-1.5">
               <Label>Пол</Label>
               <Select value={gender} onValueChange={setGender}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -254,8 +232,6 @@ export default function SellerProductEdit() {
                 </SelectContent>
               </Select>
             </div>
-              </>
-            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-desc">Описание</Label>
@@ -267,7 +243,6 @@ export default function SellerProductEdit() {
           </div>
         </div>
 
-        {isSized(category) && (
         <div className="border bg-card p-6 space-y-4">
           <h2 className="font-semibold">Размеры и остатки</h2>
           {sizes.map((s, i) => (
@@ -303,7 +278,6 @@ export default function SellerProductEdit() {
             <Plus className="h-4 w-4 mr-1" /> Добавить размер
           </Button>
         </div>
-        )}
 
         <div className="border bg-card p-6 space-y-4">
           <h2 className="font-semibold">Фотографии</h2>
