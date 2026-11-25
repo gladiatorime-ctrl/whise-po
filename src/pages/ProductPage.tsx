@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { Heart, MapPin, Phone, ShieldCheck } from 'lucide-react'
+import { Heart, MapPin, MessageCircle, Phone, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
@@ -44,6 +44,10 @@ export default function ProductPage() {
     return <div className="mx-auto max-w-6xl px-4 py-16 text-muted-foreground">Загрузка…</div>
   }
 
+  const rawPhone = product.shops?.phone ?? ''
+  const digits = rawPhone.replace(/\D/g, '')
+  const waNumber = digits.length === 10 ? '7' + digits : digits.replace(/^8/, '7')
+  const waText = encodeURIComponent(`Здравствуйте! Вижу на сайте: «${product.title}» за ${formatPrice(product.price)}. Есть в наличии?`)
   const photos = [...(product.product_photos ?? [])].sort((a, b) => a.position - b.position)
 
   const toggleFavorite = async () => {
@@ -83,7 +87,7 @@ export default function ProductPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
-          <div className="aspect-square border bg-secondary overflow-hidden">
+          <div className="aspect-square overflow-hidden rounded-2xl border bg-secondary">
             {photos[activePhoto] ? (
               <img src={photos[activePhoto].url} alt={product.title} className="h-full w-full object-cover" />
             ) : (
@@ -114,7 +118,7 @@ export default function ProductPage() {
           </div>
 
           <h1 className="font-display text-3xl font-semibold leading-tight">{product.title}</h1>
-          <div className="text-2xl font-semibold">{formatPrice(product.price)}</div>
+          <div className="text-3xl font-bold">{formatPrice(product.price)}</div>
 
           {(product.product_sizes?.length ?? 0) > 0 && (
             <div>
@@ -123,7 +127,7 @@ export default function ProductPage() {
                 {product.product_sizes!
                   .filter((s) => s.qty > 0)
                   .map((s) => (
-                    <span key={s.size} className="border px-3 py-1.5 text-sm">
+                    <span key={s.size} className="rounded-full border px-3 py-1.5 text-sm">
                       {s.size} · {s.qty} шт.
                     </span>
                   ))}
@@ -135,6 +139,21 @@ export default function ProductPage() {
             <div>
               <h2 className="text-sm font-semibold mb-1">Описание</h2>
               <p className="text-muted-foreground whitespace-pre-line">{product.description}</p>
+            </div>
+          )}
+
+          {digits && (
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button asChild size="lg" className="h-12 rounded-xl bg-[#25D366] text-base font-semibold text-white hover:bg-[#1ebe5b]">
+                <a href={`https://wa.me/${waNumber}?text=${waText}`} target="_blank" rel="noreferrer">
+                  <MessageCircle className="mr-2 h-5 w-5" /> Написать в WhatsApp
+                </a>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="h-12 rounded-xl text-base">
+                <a href={`tel:+${waNumber}`}>
+                  <Phone className="mr-2 h-5 w-5" /> Позвонить
+                </a>
+              </Button>
             </div>
           )}
 
@@ -169,7 +188,7 @@ export default function ProductPage() {
           </div>
 
           {product.shops && (
-            <div className="border p-4 space-y-2">
+            <div className="space-y-2 rounded-2xl border p-4">
               <div className="flex items-center gap-2 font-semibold">
                 {product.shops.name}
                 {product.shops.verified && (
