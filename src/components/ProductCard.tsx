@@ -21,6 +21,8 @@ export default function ProductCard({
   const { user } = useAuth()
   const photo = [...(product.product_photos ?? [])].sort((a, b) => a.position - b.position)[0]
 
+  const sizes = (product.product_sizes ?? []).filter((x) => x.qty > 0).map((x) => x.size)
+
   const toggle = async (e: React.MouseEvent) => {
     e.preventDefault()
     if (!user) {
@@ -40,9 +42,9 @@ export default function ProductCard({
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group flex flex-col overflow-hidden border bg-card transition-colors hover:border-foreground"
+      className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="relative aspect-square w-full overflow-hidden bg-secondary">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-secondary">
         {photo ? (
           <img
             src={photo.url}
@@ -73,15 +75,14 @@ export default function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-1 p-3">
-        <div className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground">
-          {product.title}
-        </div>
-        {product.shops?.name && (
-          <div className="truncate text-xs text-muted-foreground">{product.shops.name}</div>
+        <div className="text-lg font-bold tabular-nums leading-none">{formatPrice(product.price)}</div>
+        <div className="line-clamp-2 text-sm leading-snug text-foreground">{product.title}</div>
+        {sizes.length > 0 && (
+          <div className="truncate text-xs text-muted-foreground">Размеры: {sizes.join(', ')}</div>
         )}
-        <div className="mt-auto pt-2 text-sm font-medium tabular-nums">
-          {formatPrice(product.price)}
-        </div>
+        {product.shops?.name && (
+          <div className="mt-auto truncate pt-1 text-xs text-muted-foreground">{product.shops.name}</div>
+        )}
       </div>
     </Link>
   )
