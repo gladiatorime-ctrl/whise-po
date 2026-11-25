@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { BUCKET, CATEGORIES, GENDERS, SEASONS, type Photo, type Product, type Shop, type Size } from '@/types'
+import { BUCKET, CATEGORY, GENDERS, SEASONS, type Photo, type Product, type Shop, type Size } from '@/types'
 
 interface SizeRow {
   size: string
@@ -29,7 +29,6 @@ export default function SellerProductEdit() {
 
   const [title, setTitle] = useState('')
   const [price, setPrice] = useState('')
-  const [category, setCategory] = useState<string>(CATEGORIES[0])
   const [gender, setGender] = useState<string>('none')
   const [season, setSeason] = useState<string>('none')
   const [description, setDescription] = useState('')
@@ -55,7 +54,6 @@ export default function SellerProductEdit() {
         if (product) {
           setTitle(product.title)
           setPrice(String(product.price))
-          setCategory(product.category)
           setGender(product.gender ?? 'none')
           setSeason(product.season ?? 'none')
           setDescription(product.description ?? '')
@@ -143,7 +141,7 @@ export default function SellerProductEdit() {
       const payload = {
         title: title.trim(),
         price: Math.round(priceNum),
-        category,
+        category: CATEGORY,
         gender: gender === 'none' ? null : gender,
         season: season === 'none' ? null : season,
         description: description.trim() || null,
@@ -213,15 +211,6 @@ export default function SellerProductEdit() {
             <div className="space-y-1.5">
               <Label htmlFor="p-price">Цена, ₽</Label>
               <Input id="p-price" type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Категория</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
             </div>
             <div className="space-y-1.5">
               <Label>Пол</Label>

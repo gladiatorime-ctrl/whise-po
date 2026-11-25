@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
-import { CATEGORIES, type Product } from '@/types'
+import type { Product } from '@/types'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -73,17 +73,6 @@ export default function Home() {
             Найти
           </Button>
         </form>
-        <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
-          {CATEGORIES.slice(0, 6).map((c) => (
-            <Link
-              key={c}
-              to={`/catalog?category=${encodeURIComponent(c)}`}
-              className="shrink-0 rounded-full border border-white/30 px-3.5 py-1.5 text-sm hover:bg-white/10"
-            >
-              {c}
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className="mt-10">
@@ -117,9 +106,9 @@ export default function Home() {
 
       <section className="mt-12 grid gap-4 md:grid-cols-3">
         {[
-          { i: Search, t: 'Ищи', d: 'По категории, полу, сезону и цене — без звонков в каждый магазин.' },
+          { i: Search, t: 'Ищи', d: 'По полу, сезону и цене — без звонков в каждый магазин.' },
           { i: MapPin, t: 'Смотри, где лежит', d: 'Видишь магазин, адрес и размеры, которые есть сейчас.' },
-          { i: MessageCircle, t: 'Пиши продавцу', d: 'Одна кнопка — и ты в WhatsApp с готовым вопросом.' },
+          { i: MessageCircle, t: 'Пиши продавцу', d: 'Одна кнопка — и ты в MAX у продавца, вопрос уже скопирован.' },
         ].map(({ i: Icon, t, d }) => (
           <div key={t} className="rounded-2xl border p-5">
             <Icon className="mb-3 h-6 w-6" />

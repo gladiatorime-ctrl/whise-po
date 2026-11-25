@@ -14,6 +14,7 @@ export interface Shop {
   name: string
   address: string | null
   phone: string | null
+  max_url: string | null
   about: string | null
   verified: boolean
   requested: boolean
@@ -75,17 +76,8 @@ export interface Report {
   profiles?: Profile
 }
 
-export const CATEGORIES = [
-  'Одежда',
-  'Обувь',
-  'Аксессуары',
-  'Косметика',
-  'Дом',
-  'Электроника',
-  'Спорт',
-  'Книги',
-  'Другое',
-] as const
+// Сайт только для одежды: категория у всех товаров одна и не выбирается
+export const CATEGORY = 'Одежда'
 
 export const GENDERS = ['Женское', 'Мужское', 'Унисекс'] as const
 export const SEASONS = ['Всесезон', 'Зима', 'Лето', 'Демисезон'] as const
