@@ -18,6 +18,7 @@ export default function SellerShop() {
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
+  const [maxUrl, setMaxUrl] = useState('')
   const [about, setAbout] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -35,6 +36,7 @@ export default function SellerShop() {
           setName(s.name)
           setAddress(s.address ?? '')
           setPhone(s.phone ?? '')
+          setMaxUrl(s.max_url ?? '')
           setAbout(s.about ?? '')
         }
         setLoading(false)
@@ -57,6 +59,7 @@ export default function SellerShop() {
       name: name.trim(),
       address: address.trim() || null,
       phone: phone.trim() || null,
+      max_url: maxUrl.trim() || null,
       about: about.trim() || null,
     }
     const { error } = shop
@@ -144,6 +147,19 @@ export default function SellerShop() {
         <div className="space-y-1.5">
           <Label htmlFor="shop-phone">Телефон</Label>
           <Input id="shop-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7 …" />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="shop-max">Ссылка на MAX</Label>
+          <Input
+            id="shop-max"
+            value={maxUrl}
+            onChange={(e) => setMaxUrl(e.target.value)}
+            placeholder="https://max.ru/u/…"
+            inputMode="url"
+          />
+          <p className="text-xs text-muted-foreground">
+            В MAX: профиль → QR-код → «Поделиться» → скопировать ссылку. Покупатели будут писать вам по ней.
+          </p>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="shop-about">О магазине</Label>

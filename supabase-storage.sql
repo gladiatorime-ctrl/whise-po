@@ -40,3 +40,6 @@ begin
   end if;
   return new;
 end $$;
+
+-- 4. Ссылка на MAX у магазина (вместо WhatsApp)
+alter table shops add column if not exists max_url text;

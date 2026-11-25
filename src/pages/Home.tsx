@@ -55,7 +55,7 @@ export default function Home() {
           Узнай, где есть нужная вещь —<br className="hidden md:block" /> не обходя все магазины
         </h1>
         <p className="mt-3 max-w-xl opacity-80">
-          Сандалии ребёнку, куртка, брюки. Ищи по размеру и цене — и пиши продавцу сразу.
+          Одежда, обувь, электроника, всё для дома. Ищи по категории и цене — и пиши продавцу сразу.
         </p>
         <form onSubmit={submit} className="mt-6 flex max-w-xl gap-2">
           <div className="relative flex-1">
@@ -65,7 +65,7 @@ export default function Home() {
               onChange={(e) => setQ(e.target.value)}
               type="search"
               enterKeyHint="search"
-              placeholder="Что ищем? Например, сандалии"
+              placeholder="Что ищем? Например, наушники или куртка"
               className="h-12 w-full rounded-xl bg-background pl-12 pr-3 text-foreground outline-none"
             />
           </div>
@@ -74,7 +74,7 @@ export default function Home() {
           </Button>
         </form>
         <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
-          {CATEGORIES.slice(0, 6).map((c) => (
+          {CATEGORIES.map((c) => (
             <Link
               key={c}
               to={`/catalog?category=${encodeURIComponent(c)}`}
@@ -117,9 +117,9 @@ export default function Home() {
 
       <section className="mt-12 grid gap-4 md:grid-cols-3">
         {[
-          { i: Search, t: 'Ищи', d: 'По категории, полу, сезону и цене — без звонков в каждый магазин.' },
-          { i: MapPin, t: 'Смотри, где лежит', d: 'Видишь магазин, адрес и размеры, которые есть сейчас.' },
-          { i: MessageCircle, t: 'Пиши продавцу', d: 'Одна кнопка — и ты в WhatsApp с готовым вопросом.' },
+          { i: Search, t: 'Ищи', d: 'По категории и цене — без звонков в каждый магазин.' },
+          { i: MapPin, t: 'Смотри, где лежит', d: 'Видишь магазин, адрес и то, что есть в наличии сейчас.' },
+          { i: MessageCircle, t: 'Пиши продавцу', d: 'Одна кнопка — и ты в MAX у продавца, вопрос уже скопирован.' },
         ].map(({ i: Icon, t, d }) => (
           <div key={t} className="rounded-2xl border p-5">
             <Icon className="mb-3 h-6 w-6" />

@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { BUCKET, CATEGORIES, GENDERS, SEASONS, type Photo, type Product, type Shop, type Size } from '@/types'
+import { BUCKET, CATEGORIES, GENDERS, SEASONS, isFashion, isSized, type Photo, type Product, type Shop, type Size } from '@/types'
 
 interface SizeRow {
   size: string
@@ -144,8 +144,8 @@ export default function SellerProductEdit() {
         title: title.trim(),
         price: Math.round(priceNum),
         category,
-        gender: gender === 'none' ? null : gender,
-        season: season === 'none' ? null : season,
+        gender: isFashion(category) && gender !== 'none' ? gender : null,
+        season: isFashion(category) && season !== 'none' ? season : null,
         description: description.trim() || null,
         published,
       }
@@ -176,7 +176,7 @@ export default function SellerProductEdit() {
       }
 
       // Размеры
-      const cleanSizes = sizes.filter((s) => s.size.trim())
+      const cleanSizes = isSized(category) ? sizes.filter((s) => s.size.trim()) : []
       if (cleanSizes.length) {
         const { error } = await supabase
           .from('product_sizes')
@@ -216,13 +216,24 @@ export default function SellerProductEdit() {
             </div>
             <div className="space-y-1.5">
               <Label>Категория</Label>
-              <Select value={category} onValueChange={setCategory}>
+              <Select
+                value={category}
+                onValueChange={(v) => {
+                  setCategory(v)
+                  if (!isFashion(v)) {
+                    setGender('none')
+                    setSeason('none')
+                  }
+                }}
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            {isFashion(category) && (
+              <>
             <div className="space-y-1.5">
               <Label>Пол</Label>
               <Select value={gender} onValueChange={setGender}>
@@ -243,6 +254,8 @@ export default function SellerProductEdit() {
                 </SelectContent>
               </Select>
             </div>
+              </>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-desc">Описание</Label>
@@ -254,6 +267,7 @@ export default function SellerProductEdit() {
           </div>
         </div>
 
+        {isSized(category) && (
         <div className="border bg-card p-6 space-y-4">
           <h2 className="font-semibold">Размеры и остатки</h2>
           {sizes.map((s, i) => (
@@ -289,6 +303,7 @@ export default function SellerProductEdit() {
             <Plus className="h-4 w-4 mr-1" /> Добавить размер
           </Button>
         </div>
+        )}
 
         <div className="border bg-card p-6 space-y-4">
           <h2 className="font-semibold">Фотографии</h2>

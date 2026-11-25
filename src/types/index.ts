@@ -14,6 +14,7 @@ export interface Shop {
   name: string
   address: string | null
   phone: string | null
+  max_url: string | null
   about: string | null
   verified: boolean
   requested: boolean
@@ -86,6 +87,12 @@ export const CATEGORIES = [
   'Книги',
   'Другое',
 ] as const
+
+// Категории, где имеют смысл пол/сезон и размеры
+export const FASHION_CATEGORIES: readonly string[] = ['Одежда', 'Обувь', 'Аксессуары']
+export const SIZED_CATEGORIES: readonly string[] = ['Одежда', 'Обувь']
+export const isFashion = (c: string) => FASHION_CATEGORIES.includes(c)
+export const isSized = (c: string) => SIZED_CATEGORIES.includes(c)
 
 export const GENDERS = ['Женское', 'Мужское', 'Унисекс'] as const
 export const SEASONS = ['Всесезон', 'Зима', 'Лето', 'Демисезон'] as const

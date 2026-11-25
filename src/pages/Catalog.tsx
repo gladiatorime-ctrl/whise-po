@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
-import { Search, SearchX, SlidersHorizontal, X } from 'lucide-react'
+import { Search, SearchX, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import ProductCard from '@/components/ProductCard'
@@ -40,7 +40,6 @@ export default function Catalog() {
   const [products, setProducts] = useState<Product[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
-  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const q = params.get('q') ?? ''
   const category = params.get('category') ?? 'all'
@@ -152,24 +151,10 @@ export default function Catalog() {
             )}
           </div>
           
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-10 w-10 shrink-0 md:hidden"
-            onClick={() => setFiltersOpen(true)}
-            aria-label="Фильтры"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            {activeCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                {activeCount}
-              </span>
-            )}
-          </Button>
         </div>
 
-        {/* Быстрые фильтры категорий (видимые на десктопе) */}
-        <div className="hidden md:flex gap-2 overflow-x-auto pb-2 pt-3 no-scrollbar">
+        {/* Быстрые фильтры категорий */}
+        <div className="flex gap-2 overflow-x-auto pb-2 pt-3 no-scrollbar">
           <Chip active={category === 'all'} onClick={() => setParam('category', 'all')}>
             Все
           </Chip>
