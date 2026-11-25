@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /seller
+Disallow: /auth
+Disallow: /profile
+Disallow: /favorites
+Disallow: /notifications
+
+Sitemap: https://www.whicedgt.dpdns.org/sitemap.xml
