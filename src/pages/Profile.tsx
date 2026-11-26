@@ -1,5 +1,4 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { uploadFile } from '../lib/upload'; // Подключаем нашу функцию загрузки
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
@@ -58,24 +57,6 @@ export default function Profile() {
           </Button>
         </form>
       </div>
-
-      {/* Блок загрузки файла перенесен чуть ниже формы и обернут в контейнер с такими же отступами */}
-      <div className="mx-auto max-w-sm px-4 pb-16">
-        <div className="p-4 border rounded-md">
-          <h3 className="text-lg font-bold mb-2">Загрузить файл</h3>
-          <input 
-            type="file" 
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                uploadFile(file); // Вызываем функцию
-              }
-            }} 
-          />
-        </div>
-      </div>
-
     </>
   )
 }
