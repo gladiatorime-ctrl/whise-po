@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { Plus, Trash2, Upload } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { compressImage } from '@/lib/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -32,7 +33,7 @@ export default function SellerProductEdit() {
   const [gender, setGender] = useState<string>('none')
   const [season, setSeason] = useState<string>('none')
   const [description, setDescription] = useState('')
-  const [published, setPublished] = useState(false)
+  const [published, setPublished] = useState(isNew)
   const [sizes, setSizes] = useState<SizeRow[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
   const [uploading, setUploading] = useState(false)
@@ -82,7 +83,8 @@ export default function SellerProductEdit() {
     if (!files?.length || !user) return
     setUploading(true)
     try {
-      for (const file of Array.from(files)) {
+      for (const original of Array.from(files)) {
+  const file = await compressImage(original)
         const path = `${user.id}/${crypto.randomUUID()}-${file.name.replace(/[^\w.\-]/g, '_')}`
         const { error } = await supabase.storage.from(BUCKET).upload(path, file, { cacheControl: '31536000' })
         if (error) throw error
