@@ -48,8 +48,10 @@ export default function ProductPage() {
 
   const rawPhone = product.shops?.phone ?? ''
   const digits = rawPhone.replace(/\D/g, '')
-  const waNumber = digits.length === 10 ? '7' + digits : digits.replace(/^8/, '7')
-  const waText = encodeURIComponent(t('product.waMessage', { title: product.title, price: formatPrice(product.price) }))
+  const phoneNumber = digits.length === 10 ? '7' + digits : digits.replace(/^8/, '7')
+  const rawMax = (product.shops?.max_url ?? '').trim()
+  const maxUrl = /^https?:\/\//i.test(rawMax) ? rawMax : rawMax ? `https://${rawMax}` : ''
+  const askText = t('product.askText', { title: product.title, price: formatPrice(product.price) })
   const photos = [...(product.product_photos ?? [])].sort((a, b) => a.position - b.position)
 
   const toggleFavorite = async () => {
@@ -114,7 +116,6 @@ export default function ProductPage() {
 
         <div className="space-y-5">
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary">{tv('cat', product.category)}</Badge>
             {product.gender && <Badge variant="secondary">{tv('gen', product.gender)}</Badge>}
             {product.season && <Badge variant="secondary">{tv('sea', product.season)}</Badge>}
           </div>
@@ -144,18 +145,33 @@ export default function ProductPage() {
             </div>
           )}
 
-          {digits && (
+          {(maxUrl || digits) && (
             <div className="grid gap-2 sm:grid-cols-2">
-              <Button asChild size="lg" className="h-12 rounded-xl bg-[#25D366] text-base font-semibold text-white hover:bg-[#1ebe5b]">
-                <a href={`https://wa.me/${waNumber}?text=${waText}`} target="_blank" rel="noreferrer">
-                  <MessageCircle className="mr-2 h-5 w-5" /> {t('product.whatsapp')}
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-12 rounded-xl text-base">
-                <a href={`tel:+${waNumber}`}>
-                  <Phone className="mr-2 h-5 w-5" /> {t('product.call')}
-                </a>
-              </Button>
+              {maxUrl && (
+                <Button asChild size="lg" className="h-12 rounded-xl bg-[#2F6BFF] text-base font-semibold text-white hover:bg-[#2457d6]">
+                  <a
+                    href={maxUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => {
+                      // В MAX нет ссылки с готовым текстом — копируем вопрос, остаётся вставить
+                      navigator.clipboard?.writeText(askText).then(
+                        () => toast.success(t('product.maxCopied')),
+                        () => {}
+                      )
+                    }}
+                  >
+                    <MessageCircle className="mr-2 h-5 w-5" /> {t('product.max')}
+                  </a>
+                </Button>
+              )}
+              {digits && (
+                <Button asChild size="lg" variant="outline" className="h-12 rounded-xl text-base">
+                  <a href={`tel:+${phoneNumber}`}>
+                    <Phone className="mr-2 h-5 w-5" /> {t('product.call')}
+                  </a>
+                </Button>
+              )}
             </div>
           )}
 

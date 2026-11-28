@@ -11,7 +11,7 @@ import type { Product, Shop } from '@/types'
 
 export default function SellerProducts() {
   const { user } = useAuth()
-  const { t, tv } = useI18n()
+  const { t } = useI18n()
   const [shop, setShop] = useState<Shop | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -87,7 +87,7 @@ export default function SellerProducts() {
                 <div className="min-w-0 flex-1">
                   <div className="font-medium truncate">{p.title}</div>
                   <div className="text-sm text-muted-foreground">
-                    {formatPrice(p.price)} · {tv('cat', p.category)}
+                    {formatPrice(p.price)}
                   </div>
                 </div>
                 <span

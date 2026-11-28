@@ -17,7 +17,7 @@ export default defineConfig({
       manifest: {
         name: "МындаБар",
         short_name: "МындаБар",
-        description: "Узнай, где есть нужная вещь в Республике Тува",
+        description: "Маркетплейс для продавцов и покупателей",
         start_url: "/",
         scope: "/",
         display: "standalone",

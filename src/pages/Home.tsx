@@ -5,13 +5,14 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { useI18n } from '@/lib/i18n'
 import ProductCard from '@/components/ProductCard'
+import Snow, { isNewYearSeason } from '@/components/Snow'
 import { Button } from '@/components/ui/button'
-import { CATEGORIES, type Product } from '@/types'
+import type { Product } from '@/types'
 
 export default function Home() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { t, tv } = useI18n()
+  const { t } = useI18n()
   const [q, setQ] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
@@ -51,8 +52,12 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-10">
-      <section className="rounded-3xl bg-primary px-5 py-8 text-primary-foreground md:px-10 md:py-14">
-        <p className="mb-2 text-sm font-medium opacity-70">{t('home.region')}</p>
+      <section className="relative overflow-hidden rounded-3xl bg-primary px-5 py-8 text-primary-foreground md:px-10 md:py-14 [&>*:not(canvas)]:relative">
+        {isNewYearSeason() && <Snow />}
+        <p className="mb-2 text-sm font-medium opacity-70">
+          {t('home.region')}
+          {isNewYearSeason() && <span> · ❄ {t('ny.greeting')}</span>}
+        </p>
         <h1 className="font-display text-3xl font-bold leading-tight md:text-5xl">
           {t('home.h1a')}<br className="hidden md:block" /> {t('home.h1b')}
         </h1>
@@ -75,17 +80,6 @@ export default function Home() {
             {t('home.search')}
           </Button>
         </form>
-        <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
-          {CATEGORIES.slice(0, 6).map((c) => (
-            <Link
-              key={c}
-              to={`/catalog?category=${encodeURIComponent(c)}`}
-              className="shrink-0 rounded-full border border-white/30 px-3.5 py-1.5 text-sm hover:bg-white/10"
-            >
-              {tv('cat', c)}
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className="mt-10">

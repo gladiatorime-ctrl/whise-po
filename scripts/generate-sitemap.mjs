@@ -64,7 +64,7 @@ const urls = [
 await writePage(
   'catalog',
   withMeta(base, {
-    title: 'Каталог одежды в Туве — Рынок',
+    title: 'Каталог одежды в Туве — МындаБар',
     description: 'Каталог одежды и обуви от магазинов Республики Тува: цены, размеры, адреса. Пишите продавцу в MAX.',
     path: '/catalog',
   })
@@ -72,7 +72,7 @@ await writePage(
 await writePage(
   'seller',
   withMeta(base, {
-    title: 'Открыть магазин — Рынок',
+    title: 'Открыть магазин — МындаБар',
     description: 'Выложите одежду в каталог за минуту — покупатели из Тувы найдут вас.',
     path: '/seller',
   })
@@ -86,7 +86,7 @@ for (const p of products) {
     .slice(0, 160)
   await writePage(
     `product/${p.id}`,
-    withMeta(base, { title: `${p.title} — ${price} ₽ | Рынок`, description: desc, path: `/product/${p.id}`, image: photo })
+    withMeta(base, { title: `${p.title} — ${price} ₽ | МындаБар`, description: desc, path: `/product/${p.id}`, image: photo })
   )
   urls.push({ loc: `/product/${p.id}`, lastmod: (p.created_at || '').slice(0, 10), priority: '0.7' })
 }

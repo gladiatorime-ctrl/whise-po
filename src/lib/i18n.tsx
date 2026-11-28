@@ -36,7 +36,7 @@ interface Ctx {
   locale: string
   t: (key: Key, params?: Params) => string
   /** Перевод значения из базы (категория/пол/сезон хранятся по-русски). */
-  tv: (prefix: 'cat' | 'gen' | 'sea', value: string) => string
+  tv: (prefix: 'gen' | 'sea', value: string) => string
 }
 
 const I18nContext = createContext<Ctx | null>(null)
@@ -64,7 +64,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       if (params) for (const [k, v] of Object.entries(params)) s = s.split(`{${k}}`).join(String(v))
       return s
     }
-    const tv = (prefix: 'cat' | 'gen' | 'sea', value: string) => {
+    const tv = (prefix: 'gen' | 'sea', value: string) => {
       const key = `${prefix}.${value}` as Key
       return dict[key] ?? value
     }

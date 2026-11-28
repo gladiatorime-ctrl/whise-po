@@ -1,5 +1,4 @@
 // Сжимает фото перед загрузкой: до 1400px по длинной стороне, JPEG ~82%.
-// Фото с телефона весят 3–8 МБ, после сжатия обычно 150–400 КБ.
 export async function compressImage(file: File, maxSide = 1400, quality = 0.82): Promise<File> {
   try {
     if (!file.type.startsWith('image/') || file.type === 'image/gif') return file
