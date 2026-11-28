@@ -7,12 +7,12 @@ import { useI18n } from '@/lib/i18n'
 import ProductCard from '@/components/ProductCard'
 import Snow, { isNewYearSeason } from '@/components/Snow'
 import { Button } from '@/components/ui/button'
-import { CATEGORIES, type Product } from '@/types'
+import type { Product } from '@/types'
 
 export default function Home() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { t, tv } = useI18n()
+  const { t } = useI18n()
   const [q, setQ] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
@@ -80,17 +80,6 @@ export default function Home() {
             {t('home.search')}
           </Button>
         </form>
-        <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
-          {CATEGORIES.slice(0, 6).map((c) => (
-            <Link
-              key={c}
-              to={`/catalog?category=${encodeURIComponent(c)}`}
-              className="shrink-0 rounded-full border border-white/30 px-3.5 py-1.5 text-sm hover:bg-white/10"
-            >
-              {tv('cat', c)}
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className="mt-10">
