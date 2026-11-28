@@ -15,8 +15,8 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "МындаБар",
-        short_name: "МындаБар",
+        name: "Nalichie",
+        short_name: "Nalichie",
         description: "Маркетплейс для продавцов и покупателей",
         start_url: "/",
         scope: "/",

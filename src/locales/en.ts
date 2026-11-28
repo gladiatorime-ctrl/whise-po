@@ -20,10 +20,10 @@ const en: Record<Key, string> = {
   'nav.login': 'Log in',
   'nav.sellerCabinet': 'Seller dashboard',
   'nav.logout': 'Log out',
-  'footer.tagline': 'Find out where to get what you need in the Republic of Tuva',
+  'footer.tagline': 'Find out where to get what you need in your city',
 
   'ny.greeting': 'Happy New Year!',
-  'home.region': 'Republic of Tuva',
+  'home.region': 'In stock in shops near you',
   'home.h1a': 'Find out where it is in stock —',
   'home.h1b': 'without visiting every store',
   'home.sub': 'Sandals for the kids, a jacket, trousers. Search by size and price — and message the seller right away.',
@@ -39,7 +39,7 @@ const en: Record<Key, string> = {
   'home.s2d': 'You see the store, the address and the sizes available right now.',
   'home.s3t': 'Message the seller',
   'home.s3d': "One button and you are in the seller's MAX chat, your question already copied.",
-  'home.sellTitle': 'Selling in Tuva?',
+  'home.sellTitle': 'Selling clothes?',
   'home.sellText': 'List a product in a minute — buyers will find you in the catalog.',
   'home.openShop': 'Open a shop',
 

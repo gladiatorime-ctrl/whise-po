@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">МындаБар</string>
-    <string name="title_activity_main">МындаБар</string>
+    <string name="app_name">Nalichie</string>
+    <string name="title_activity_main">Nalichie</string>
     <string name="package_name">ru.whicedgt.market</string>
     <string name="custom_url_scheme">ru.whicedgt.market</string>
 </resources>

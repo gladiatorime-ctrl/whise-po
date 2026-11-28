@@ -21,10 +21,10 @@ const uz: Record<Key, string> = {
   'nav.login': 'Kirish',
   'nav.sellerCabinet': 'Sotuvchi kabineti',
   'nav.logout': 'Chiqish',
-  'footer.tagline': "Tuva Respublikasida kerakli narsa qayerda borligini bilib oling",
+  'footer.tagline': 'Shahringizda kerakli narsa qayerda borligini bilib oling',
 
   'ny.greeting': 'Yangi yil bilan!',
-  'home.region': 'Tuva Respublikasi',
+  'home.region': "Yaqin atrofdagi do'konlarda mavjud",
   'home.h1a': 'Kerakli narsa qayerda borligini bilib oling —',
   'home.h1b': "barcha do'konlarni aylanib chiqmasdan",
   'home.sub': "Bolaga sandal, kurtka, shim. O'lcham va narx bo'yicha qidiring — va sotuvchiga darhol yozing.",
@@ -40,7 +40,7 @@ const uz: Record<Key, string> = {
   'home.s2d': "Do'kon, manzil va hozir mavjud o'lchamlarni ko'rasiz.",
   'home.s3t': 'Sotuvchiga yozing',
   'home.s3d': 'Bitta tugma — va siz sotuvchining MAX chatidasiz, savol allaqachon nusxalangan.',
-  'home.sellTitle': 'Tuvada sotasizmi?',
+  'home.sellTitle': 'Kiyim sotasizmi?',
   'home.sellText': 'Tovarni bir daqiqada joylang — xaridorlar sizni katalogdan topadi.',
   'home.openShop': "Do'kon ochish",
 
