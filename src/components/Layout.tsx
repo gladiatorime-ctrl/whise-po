@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
-import { Bell, Check, ChevronDown, Heart, LayoutGrid, LogOut, Shield, ShoppingBag, Store, UserRound } from 'lucide-react'
+import { Bell, Check, ChevronDown, Heart, LayoutGrid, LogOut, Shield, Store, UserRound } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { LANGS, useI18n } from '@/lib/i18n'
@@ -145,7 +145,7 @@ export default function Layout() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex h-16 items-center gap-3">
             <Link to="/" className="flex shrink-0 items-center gap-2" aria-label={t('nav.home')}>
-              <ShoppingBag className="h-6 w-6 text-primary" />
+              <img src="/favicon.svg" alt="" className="h-8 w-8" />
               <span className="font-display text-xl font-semibold tracking-tight">Nalichie</span>
             </Link>
 
