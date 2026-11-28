@@ -146,7 +146,7 @@ export default function Layout() {
           <div className="flex h-16 items-center gap-3">
             <Link to="/" className="flex shrink-0 items-center gap-2" aria-label={t('nav.home')}>
               <ShoppingBag className="h-6 w-6 text-primary" />
-              <span className="font-display text-xl font-semibold tracking-tight">МындаБар</span>
+              <span className="font-display text-xl font-semibold tracking-tight">Nalichie</span>
             </Link>
 
             <nav className="ml-auto hidden items-center gap-5 text-sm font-medium lg:flex">
@@ -231,7 +231,7 @@ export default function Layout() {
 
       <footer className="mt-12 border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground">
-          <span className="font-display text-base font-semibold text-foreground">МындаБар</span>
+          <span className="font-display text-base font-semibold text-foreground">Nalichie</span>
           <span>{t('footer.tagline')}</span>
         </div>
       </footer>
