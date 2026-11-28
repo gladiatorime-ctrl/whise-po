@@ -3,17 +3,22 @@ import ru, { type Key } from '@/locales/ru'
 import en from '@/locales/en'
 import uz from '@/locales/uz'
 import ky from '@/locales/ky'
+import kk from '@/locales/kk'
+import tyv from '@/locales/tyv'
 
-export type Lang = 'ru' | 'en' | 'uz' | 'ky'
+export type Lang = 'ru' | 'tyv' | 'kk' | 'ky' | 'uz' | 'en'
 
 export const LANGS: { code: Lang; label: string; native: string; locale: string }[] = [
   { code: 'ru', label: 'RU', native: 'Русский', locale: 'ru-RU' },
-  { code: 'uz', label: 'UZ', native: "O'zbekcha", locale: 'uz-UZ' },
+  // Intl не знает тувинский — для форматирования чисел и дат берём русскую локаль
+  { code: 'tyv', label: 'TYV', native: 'Тыва дыл', locale: 'ru-RU' },
+  { code: 'kk', label: 'KK', native: 'Қазақша', locale: 'kk-KZ' },
   { code: 'ky', label: 'KY', native: 'Кыргызча', locale: 'ky-KG' },
+  { code: 'uz', label: 'UZ', native: "O'zbekcha", locale: 'uz-UZ' },
   { code: 'en', label: 'EN', native: 'English', locale: 'en-US' },
 ]
 
-const DICTS: Record<Lang, Record<Key, string>> = { ru, en, uz, ky }
+const DICTS: Record<Lang, Record<Key, string>> = { ru, tyv, kk, ky, uz, en }
 const STORAGE_KEY = 'lang'
 
 function detect(): Lang {
@@ -23,8 +28,10 @@ function detect(): Lang {
   } catch {
     /* storage may be unavailable */
   }
-  const nav = (typeof navigator !== 'undefined' ? navigator.language : 'ru').slice(0, 2).toLowerCase()
-  if (nav === 'uz' || nav === 'ky' || nav === 'en') return nav
+  const nav = (typeof navigator !== 'undefined' ? navigator.language : 'ru').toLowerCase()
+  if (nav.startsWith('tyv')) return 'tyv'
+  const short = nav.slice(0, 2)
+  if (short === 'kk' || short === 'ky' || short === 'uz' || short === 'en') return short
   return 'ru'
 }
 
