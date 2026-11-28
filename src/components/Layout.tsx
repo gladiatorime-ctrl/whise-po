@@ -1,26 +1,75 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
-import { Bell, Heart, LayoutGrid, LogOut, Shield, ShoppingBag, Store, UserRound } from 'lucide-react'
+import { Bell, Check, ChevronDown, Heart, LayoutGrid, LogOut, Shield, ShoppingBag, Store, UserRound } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { LANGS, useI18n, type Lang } from '@/lib/i18n'
+import { LANGS, useI18n } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
+import Flag from '@/components/Flag'
 
 function LangSwitch() {
   const { lang, setLang, t } = useI18n()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const current = LANGS.find((l) => l.code === lang)!
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('touchstart', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('touchstart', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
   return (
-    <select
-      value={lang}
-      onChange={(e) => setLang(e.target.value as Lang)}
-      aria-label={t('common.language')}
-      className="h-9 rounded-md border bg-background px-2 text-sm font-medium"
-    >
-      {LANGS.map((l) => (
-        <option key={l.code} value={l.code}>
-          {l.label}
-        </option>
-      ))}
-    </select>
+    <div ref={ref} className="relative z-50">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={t('common.language')}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex h-9 items-center gap-1.5 rounded-md border bg-background px-2 text-sm font-medium"
+      >
+        <Flag lang={lang} />
+        {current.label}
+        <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          aria-label={t('common.language')}
+          className="absolute right-0 mt-1 min-w-44 overflow-hidden rounded-md border bg-background py-1 shadow-lg"
+        >
+          {LANGS.map((l) => (
+            <li key={l.code} role="option" aria-selected={l.code === lang}>
+              <button
+                type="button"
+                onClick={() => {
+                  setLang(l.code)
+                  setOpen(false)
+                }}
+                className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-muted ${
+                  l.code === lang ? 'font-semibold' : ''
+                }`}
+              >
+                <Flag lang={l.code} />
+                <span className="flex-1">{l.native}</span>
+                {l.code === lang && <Check className="h-4 w-4" />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
