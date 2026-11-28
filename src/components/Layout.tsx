@@ -3,9 +3,29 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { Bell, Heart, LayoutGrid, LogOut, Shield, ShoppingBag, Store, UserRound } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { LANGS, useI18n, type Lang } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
 
+function LangSwitch() {
+  const { lang, setLang, t } = useI18n()
+  return (
+    <select
+      value={lang}
+      onChange={(e) => setLang(e.target.value as Lang)}
+      aria-label={t('common.language')}
+      className="h-9 rounded-md border bg-background px-2 text-sm font-medium"
+    >
+      {LANGS.map((l) => (
+        <option key={l.code} value={l.code}>
+          {l.label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
 export default function Layout() {
+  const { t } = useI18n()
   const { user, profile, isAdmin, signOut } = useAuth()
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
@@ -30,44 +50,44 @@ export default function Layout() {
     navigate('/')
   }
 
-  const displayName = profile?.name?.trim() || user?.email?.split('@')[0] || 'Профиль'
+  const displayName = profile?.name?.trim() || user?.email?.split('@')[0] || t('nav.profile')
 
   const desktopLinks = (
     <>
       <NavLink to="/catalog" className={navCls}>
-        Каталог
+        {t('nav.catalog')}
       </NavLink>
       {user && (
         <>
           <NavLink to="/favorites" className={navCls}>
-            Избранное
+            {t('nav.favorites')}
           </NavLink>
           <NavLink to="/notifications" className={navCls}>
-            Уведомления
+            {t('nav.notifications')}
             {unread > 0 && <span className="ml-1 font-semibold text-primary">({unread})</span>}
           </NavLink>
         </>
       )}
       {isAdmin && (
         <NavLink to="/admin" className={navCls}>
-          Админка
+          {t('nav.admin')}
         </NavLink>
       )}
     </>
   )
 
   const tabs = [
-    { to: '/catalog', label: 'Каталог', icon: LayoutGrid },
+    { to: '/catalog', label: t('nav.catalog'), icon: LayoutGrid },
     ...(user
       ? [
-          { to: '/favorites', label: 'Избранное', icon: Heart },
-          { to: '/notifications', label: 'События', icon: Bell, badge: unread },
+          { to: '/favorites', label: t('nav.favorites'), icon: Heart },
+          { to: '/notifications', label: t('nav.events'), icon: Bell, badge: unread },
           ...(isAdmin
-            ? [{ to: '/admin', label: 'Админка', icon: Shield }]
-            : [{ to: '/seller', label: 'Кабинет', icon: Store }]),
-          { to: '/profile', label: 'Профиль', icon: UserRound },
+            ? [{ to: '/admin', label: t('nav.admin'), icon: Shield }]
+            : [{ to: '/seller', label: t('nav.cabinet'), icon: Store }]),
+          { to: '/profile', label: t('nav.profile'), icon: UserRound },
         ]
-      : [{ to: '/auth', label: 'Войти', icon: UserRound }]),
+      : [{ to: '/auth', label: t('nav.login'), icon: UserRound }]),
   ]
 
   return (
@@ -75,9 +95,9 @@ export default function Layout() {
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex h-16 items-center gap-3">
-            <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="На главную">
+            <Link to="/" className="flex shrink-0 items-center gap-2" aria-label={t('nav.home')}>
               <ShoppingBag className="h-6 w-6 text-primary" />
-              <span className="font-display text-xl font-semibold tracking-tight">Рынок</span>
+              <span className="font-display text-xl font-semibold tracking-tight">МындаБар</span>
             </Link>
 
             <nav className="ml-auto hidden items-center gap-5 text-sm font-medium lg:flex">
@@ -85,6 +105,7 @@ export default function Layout() {
             </nav>
 
             <div className="ml-auto flex items-center gap-2 lg:ml-4">
+              <LangSwitch />
               {user ? (
                 <div className="relative z-40 hidden sm:block">
                   <Button
@@ -112,7 +133,7 @@ export default function Layout() {
                           className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
                         >
                           <UserRound className="h-4 w-4" />
-                          Профиль
+                          {t('nav.profile')}
                         </Link>
                         {!isAdmin && (
                           <Link
@@ -122,7 +143,7 @@ export default function Layout() {
                             className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
                           >
                             <Store className="h-4 w-4" />
-                            Кабинет продавца
+                            {t('nav.sellerCabinet')}
                           </Link>
                         )}
                         <button
@@ -131,7 +152,7 @@ export default function Layout() {
                           className="mt-1 flex w-full items-center gap-2 rounded-sm border-t px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent"
                         >
                           <LogOut className="h-4 w-4" />
-                          Выйти
+                          {t('nav.logout')}
                         </button>
                       </div>
                     </>
@@ -139,13 +160,13 @@ export default function Layout() {
                 </div>
               ) : (
                 <Button size="sm" asChild>
-                  <Link to="/auth">Войти</Link>
+                  <Link to="/auth">{t('nav.login')}</Link>
                 </Button>
               )}
 
               <Link
                 to={user ? '/profile' : '/auth'}
-                aria-label={user ? 'Профиль' : 'Войти'}
+                aria-label={user ? t('nav.profile') : t('nav.login')}
                 className="rounded-md p-2 hover:bg-accent sm:hidden"
               >
                 <UserRound className="h-5 w-5" />
@@ -161,15 +182,15 @@ export default function Layout() {
 
       <footer className="mt-12 border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground">
-          <span className="font-display text-base font-semibold text-foreground">Рынок</span>
-          <span>Маркетплейс для продавцов и покупателей</span>
+          <span className="font-display text-base font-semibold text-foreground">МындаБар</span>
+          <span>{t('footer.tagline')}</span>
         </div>
       </footer>
 
       <nav
         className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur md:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-        aria-label="Основная навигация"
+        aria-label={t('nav.main')}
       >
         <div
           className="grid"

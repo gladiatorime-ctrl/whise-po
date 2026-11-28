@@ -3,11 +3,13 @@ import { HeartOff } from 'lucide-react'
 import { Link } from 'react-router'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/lib/i18n'
 import ProductCard from '@/components/ProductCard'
 import type { Product } from '@/types'
 
 export default function Favorites() {
   const { user } = useAuth()
+  const { t } = useI18n()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -34,9 +36,9 @@ export default function Favorites() {
   if (!user) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-16 text-center text-muted-foreground">
-        <p className="mb-4">Войдите, чтобы видеть избранное.</p>
+        <p className="mb-4">{t('fav.login')}</p>
         <Link to="/auth" className="text-primary hover:underline">
-          Войти или зарегистрироваться
+          {t('fav.loginLink')}
         </Link>
       </div>
     )
@@ -44,15 +46,15 @@ export default function Favorites() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="font-display text-3xl font-semibold mb-6">Избранное</h1>
+      <h1 className="font-display text-3xl font-semibold mb-6">{t('fav.title')}</h1>
       {loading ? (
-        <p className="text-muted-foreground">Загрузка…</p>
+        <p className="text-muted-foreground">{t('common.loading')}</p>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
           <HeartOff className="h-10 w-10" />
-          <p>Пока пусто. Добавьте товары из каталога.</p>
+          <p>{t('fav.empty')}</p>
           <Link to="/catalog" className="text-primary hover:underline">
-            Перейти в каталог
+            {t('fav.toCatalog')}
           </Link>
         </div>
       ) : (

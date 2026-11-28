@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, Navigate } from 'react-router'
 import { toast } from 'sonner'
 import { ShieldCheck, ShieldQuestion, Store } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/lib/i18n'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,13 +13,12 @@ import type { Shop } from '@/types'
 
 export default function SellerShop() {
   const { user } = useAuth()
-  const navigate = useNavigate()
+  const { t } = useI18n()
   const [shop, setShop] = useState<Shop | null>(null)
   const [loading, setLoading] = useState(true)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
-  const [maxUrl, setMaxUrl] = useState('')
   const [about, setAbout] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -36,22 +36,18 @@ export default function SellerShop() {
           setName(s.name)
           setAddress(s.address ?? '')
           setPhone(s.phone ?? '')
-          setMaxUrl(s.max_url ?? '')
           setAbout(s.about ?? '')
         }
         setLoading(false)
       })
   }, [user])
 
-  if (!user) {
-    navigate('/auth')
-    return null
-  }
+  if (!user) return <Navigate to="/auth" replace />
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!name.trim()) {
-      toast.error('Введите название магазина')
+      toast.error(t('shop.needName'))
       return
     }
     setBusy(true)
@@ -59,7 +55,6 @@ export default function SellerShop() {
       name: name.trim(),
       address: address.trim() || null,
       phone: phone.trim() || null,
-      max_url: maxUrl.trim() || null,
       about: about.trim() || null,
     }
     const { error } = shop
@@ -68,7 +63,7 @@ export default function SellerShop() {
     setBusy(false)
     if (error) toast.error(error.message)
     else {
-      toast.success(shop ? 'Магазин обновлён' : 'Магазин создан')
+      toast.success(shop ? t('shop.updated') : t('shop.created'))
       if (!shop) window.location.reload()
     }
   }
@@ -90,22 +85,22 @@ export default function SellerShop() {
         }))
       )
     }
-    toast.success('Запрос на верификацию отправлен')
+    toast.success(t('shop.requestOk'))
     setShop({ ...shop, requested: true })
   }
 
   if (loading) {
-    return <div className="mx-auto max-w-2xl px-4 py-16 text-muted-foreground">Загрузка…</div>
+    return <div className="mx-auto max-w-2xl px-4 py-16 text-muted-foreground">{t('common.loading')}</div>
   }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-3xl font-semibold">Мой магазин</h1>
+        <h1 className="font-display text-3xl font-semibold">{t('shop.title')}</h1>
         {shop && (
           <Button variant="outline" asChild>
             <Link to="/seller/products">
-              <Store className="h-4 w-4 mr-2" /> Мои товары
+              <Store className="h-4 w-4 mr-2" /> {t('shop.myProducts')}
             </Link>
           </Button>
         )}
@@ -116,19 +111,19 @@ export default function SellerShop() {
           {shop.verified ? (
             <>
               <ShieldCheck className="h-5 w-5 text-primary" />
-              <span>Магазин верифицирован.</span>
+              <span>{t('shop.verified')}</span>
             </>
           ) : shop.requested ? (
             <>
               <ShieldQuestion className="h-5 w-5 text-muted-foreground" />
-              <span>Заявка на верификацию отправлена, ожидайте проверки администратором.</span>
+              <span>{t('shop.requestSent')}</span>
             </>
           ) : (
             <>
               <ShieldQuestion className="h-5 w-5 text-muted-foreground" />
-              <span className="flex-1">Магазин не верифицирован.</span>
+              <span className="flex-1">{t('shop.notVerified')}</span>
               <Button size="sm" variant="outline" onClick={requestVerification}>
-                Запросить верификацию
+                {t('shop.requestBtn')}
               </Button>
             </>
           )}
@@ -137,36 +132,23 @@ export default function SellerShop() {
 
       <form onSubmit={submit} className="space-y-4 border bg-card p-6">
         <div className="space-y-1.5">
-          <Label htmlFor="shop-name">Название магазина</Label>
+          <Label htmlFor="shop-name">{t('shop.name')}</Label>
           <Input id="shop-name" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="shop-address">Адрес</Label>
-          <Input id="shop-address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Город, улица" />
+          <Label htmlFor="shop-address">{t('shop.address')}</Label>
+          <Input id="shop-address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t('shop.addressPh')} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="shop-phone">Телефон</Label>
+          <Label htmlFor="shop-phone">{t('shop.phone')}</Label>
           <Input id="shop-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7 …" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="shop-max">Ссылка на MAX</Label>
-          <Input
-            id="shop-max"
-            value={maxUrl}
-            onChange={(e) => setMaxUrl(e.target.value)}
-            placeholder="https://max.ru/u/…"
-            inputMode="url"
-          />
-          <p className="text-xs text-muted-foreground">
-            В MAX: профиль → QR-код → «Поделиться» → скопировать ссылку. Покупатели будут писать вам по ней.
-          </p>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="shop-about">О магазине</Label>
+          <Label htmlFor="shop-about">{t('shop.about')}</Label>
           <Textarea id="shop-about" value={about} onChange={(e) => setAbout(e.target.value)} rows={4} />
         </div>
         <Button type="submit" disabled={busy}>
-          {busy ? 'Сохранение…' : shop ? 'Сохранить изменения' : 'Создать магазин'}
+          {busy ? t('common.saving') : shop ? t('shop.saveChanges') : t('shop.create')}
         </Button>
       </form>
     </div>

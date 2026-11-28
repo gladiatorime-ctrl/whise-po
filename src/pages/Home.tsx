@@ -3,13 +3,15 @@ import { Link, useNavigate } from 'react-router'
 import { Search, Store, MessageCircle, MapPin } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/lib/i18n'
 import ProductCard from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
-import type { Product } from '@/types'
+import { CATEGORIES, type Product } from '@/types'
 
 export default function Home() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t, tv } = useI18n()
   const [q, setQ] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
@@ -50,12 +52,12 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-10">
       <section className="rounded-3xl bg-primary px-5 py-8 text-primary-foreground md:px-10 md:py-14">
-        <p className="mb-2 text-sm font-medium opacity-70">Республика Тува</p>
+        <p className="mb-2 text-sm font-medium opacity-70">{t('home.region')}</p>
         <h1 className="font-display text-3xl font-bold leading-tight md:text-5xl">
-          Узнай, где есть нужная вещь —<br className="hidden md:block" /> не обходя все магазины
+          {t('home.h1a')}<br className="hidden md:block" /> {t('home.h1b')}
         </h1>
         <p className="mt-3 max-w-xl opacity-80">
-          Сандалии ребёнку, куртка, брюки. Ищи по размеру и цене — и пиши продавцу сразу.
+          {t('home.sub')}
         </p>
         <form onSubmit={submit} className="mt-6 flex max-w-xl gap-2">
           <div className="relative flex-1">
@@ -65,21 +67,32 @@ export default function Home() {
               onChange={(e) => setQ(e.target.value)}
               type="search"
               enterKeyHint="search"
-              placeholder="Что ищем? Например, сандалии"
+              placeholder={t('home.searchPh')}
               className="h-12 w-full rounded-xl bg-background pl-12 pr-3 text-foreground outline-none"
             />
           </div>
           <Button type="submit" size="lg" variant="secondary" className="h-12 rounded-xl px-6">
-            Найти
+            {t('home.search')}
           </Button>
         </form>
+        <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
+          {CATEGORIES.slice(0, 6).map((c) => (
+            <Link
+              key={c}
+              to={`/catalog?category=${encodeURIComponent(c)}`}
+              className="shrink-0 rounded-full border border-white/30 px-3.5 py-1.5 text-sm hover:bg-white/10"
+            >
+              {tv('cat', c)}
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="mt-10">
         <div className="mb-4 flex items-end justify-between">
-          <h2 className="font-display text-2xl font-bold">Новое в наличии</h2>
+          <h2 className="font-display text-2xl font-bold">{t('home.new')}</h2>
           <Link to="/catalog" className="text-sm font-medium underline-offset-4 hover:underline">
-            Весь каталог →
+            {t('home.allCatalog')}
           </Link>
         </div>
         {loading ? (
@@ -90,9 +103,9 @@ export default function Home() {
           </div>
         ) : products.length === 0 ? (
           <div className="rounded-2xl border border-dashed p-8 text-center">
-            <p className="font-semibold">Пока нет товаров — будь первым продавцом</p>
+            <p className="font-semibold">{t('home.empty')}</p>
             <Button asChild className="mt-4 rounded-xl">
-              <Link to="/seller">Выложить товар</Link>
+              <Link to="/seller">{t('home.post')}</Link>
             </Button>
           </div>
         ) : (
@@ -106,13 +119,13 @@ export default function Home() {
 
       <section className="mt-12 grid gap-4 md:grid-cols-3">
         {[
-          { i: Search, t: 'Ищи', d: 'По полу, сезону и цене — без звонков в каждый магазин.' },
-          { i: MapPin, t: 'Смотри, где лежит', d: 'Видишь магазин, адрес и размеры, которые есть сейчас.' },
-          { i: MessageCircle, t: 'Пиши продавцу', d: 'Одна кнопка — и ты в MAX у продавца, вопрос уже скопирован.' },
-        ].map(({ i: Icon, t, d }) => (
-          <div key={t} className="rounded-2xl border p-5">
+          { i: Search, title: t('home.s1t'), d: t('home.s1d') },
+          { i: MapPin, title: t('home.s2t'), d: t('home.s2d') },
+          { i: MessageCircle, title: t('home.s3t'), d: t('home.s3d') },
+        ].map(({ i: Icon, title, d }) => (
+          <div key={title} className="rounded-2xl border p-5">
             <Icon className="mb-3 h-6 w-6" />
-            <h3 className="font-semibold">{t}</h3>
+            <h3 className="font-semibold">{title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{d}</p>
           </div>
         ))}
@@ -120,11 +133,11 @@ export default function Home() {
 
       <section className="mt-10 flex flex-col items-start gap-3 rounded-3xl bg-secondary p-6 md:flex-row md:items-center md:justify-between md:p-8">
         <div>
-          <h2 className="font-display text-xl font-bold">Продаёшь в Туве?</h2>
-          <p className="text-muted-foreground">Выложи товар за минуту — покупатели найдут тебя в каталоге.</p>
+          <h2 className="font-display text-xl font-bold">{t('home.sellTitle')}</h2>
+          <p className="text-muted-foreground">{t('home.sellText')}</p>
         </div>
         <Button asChild size="lg" className="rounded-xl">
-          <Link to="/seller"><Store className="mr-2 h-4 w-4" /> Открыть магазин</Link>
+          <Link to="/seller"><Store className="mr-2 h-4 w-4" /> {t('home.openShop')}</Link>
         </Button>
       </section>
     </div>

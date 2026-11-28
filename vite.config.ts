@@ -15,9 +15,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "Рынок",
-        short_name: "Рынок",
-        description: "Маркетплейс для продавцов и покупателей",
+        name: "МындаБар",
+        short_name: "МындаБар",
+        description: "Узнай, где есть нужная вещь в Республике Тува",
         start_url: "/",
         scope: "/",
         display: "standalone",

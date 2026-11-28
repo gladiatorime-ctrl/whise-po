@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
+import { useI18n } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function Auth() {
   const navigate = useNavigate()
+  const { t } = useI18n()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,7 +23,7 @@ export default function Auth() {
 
     const cleanEmail = email.trim().toLowerCase()
     if (!cleanEmail) {
-      toast.error('Укажите email')
+      toast.error(t('auth.needEmail'))
       return
     }
 
@@ -33,7 +35,7 @@ export default function Auth() {
           password,
         })
         if (error) throw error
-        toast.success('Вы вошли')
+        toast.success(t('auth.loggedIn'))
         navigate('/catalog')
       } else {
         const { error } = await supabase.auth.signUp({
@@ -42,7 +44,7 @@ export default function Auth() {
           options: { data: { name: name.trim() || cleanEmail.split('@')[0] } },
         })
         if (error) throw error
-        toast.success('Регистрация прошла. Проверьте почту, если включено подтверждение email.')
+        toast.success(t('auth.registered'))
         navigate('/catalog')
       }
     } catch (err) {
@@ -50,7 +52,7 @@ export default function Auth() {
       const message =
         err instanceof Error && err.message
           ? err.message
-          : 'Ошибка авторизации'
+          : t('auth.error')
       toast.error(message)
     } finally {
       setBusy(false)
@@ -60,7 +62,7 @@ export default function Auth() {
   return (
     <div className="mx-auto max-w-sm px-4 py-16">
       <h1 className="font-display text-3xl font-semibold text-center mb-8">
-        {mode === 'login' ? 'Вход' : 'Регистрация'}
+        {mode === 'login' ? t('auth.login') : t('auth.register')}
       </h1>
 
       <Tabs
@@ -71,19 +73,19 @@ export default function Auth() {
         }}
       >
         <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="login">Вход</TabsTrigger>
-          <TabsTrigger value="register">Регистрация</TabsTrigger>
+          <TabsTrigger value="login">{t('auth.login')}</TabsTrigger>
+          <TabsTrigger value="register">{t('auth.register')}</TabsTrigger>
         </TabsList>
 
         <form onSubmit={submit} className="space-y-4">
           {mode === 'register' && (
             <div className="space-y-1.5">
-              <Label htmlFor="name">Имя</Label>
+              <Label htmlFor="name">{t('auth.name')}</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Как вас зовут"
+                placeholder={t('auth.namePh')}
                 autoComplete="name"
                 disabled={busy}
               />
@@ -106,7 +108,7 @@ export default function Auth() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Пароль</Label>
+            <Label htmlFor="password">{t('auth.password')}</Label>
             <Input
               id="password"
               type="password"
@@ -115,12 +117,12 @@ export default function Auth() {
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Минимум 6 символов"
+              placeholder={t('auth.passwordPh')}
               disabled={busy}
             />
           </div>
           <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? 'Подождите…' : mode === 'login' ? 'Войти' : 'Создать аккаунт'}
+            {busy ? t('auth.wait') : mode === 'login' ? t('auth.signIn') : t('auth.create')}
           </Button>
         </form>
       </Tabs>

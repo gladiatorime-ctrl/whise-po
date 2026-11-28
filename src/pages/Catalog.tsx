@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
-import { Search, SearchX, X } from 'lucide-react'
+import { Search, SearchX, SlidersHorizontal, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/lib/i18n'
 import ProductCard from '@/components/ProductCard'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { GENDERS, SEASONS, type Product } from '@/types'
+import { CATEGORIES, GENDERS, SEASONS, type Product } from '@/types'
 
 function Chip({
   active,
@@ -36,12 +37,15 @@ function Chip({
 
 export default function Catalog() {
   const { user } = useAuth()
+  const { t, tv } = useI18n()
   const [params, setParams] = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const q = params.get('q') ?? ''
+  const category = params.get('category') ?? 'all'
   const gender = params.get('gender') ?? 'all'
   const season = params.get('season') ?? 'all'
   const maxPrice = params.get('maxPrice') ?? ''
@@ -75,6 +79,7 @@ export default function Catalog() {
       .order('created_at', { ascending: false })
 
     if (q) query = query.ilike('title', `%${q}%`)
+    if (category !== 'all') query = query.eq('category', category)
     if (gender !== 'all') query = query.eq('gender', gender)
     if (season !== 'all') query = query.eq('season', season)
     if (maxPrice) query = query.lte('price', Number(maxPrice))
@@ -83,7 +88,7 @@ export default function Catalog() {
       setProducts((data as Product[]) ?? [])
       setLoading(false)
     })
-  }, [q, gender, season, maxPrice, user])
+  }, [q, category, gender, season, maxPrice, user])
 
   useEffect(() => {
     if (!user) {
@@ -106,21 +111,22 @@ export default function Catalog() {
 
   const activeCount = useMemo(
     () =>
+      (category !== 'all' ? 1 : 0) +
       (gender !== 'all' ? 1 : 0) +
       (season !== 'all' ? 1 : 0) +
       (maxPrice ? 1 : 0),
-    [gender, season, maxPrice]
+    [category, gender, season, maxPrice]
   )
 
   const resetFilters = () => {
     const next = new URLSearchParams(params)
-    ;['gender', 'season', 'maxPrice'].forEach((k) => next.delete(k))
+    ;['category', 'gender', 'season', 'maxPrice'].forEach((k) => next.delete(k))
     setParams(next, { replace: true })
   }
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-8">
-      <h1 className="mb-5 font-display text-3xl font-semibold">Каталог</h1>
+      <h1 className="mb-5 font-display text-3xl font-semibold">{t('catalog.title')}</h1>
 
       <div className="sticky top-16 z-30 -mx-4 mb-6 border-b bg-background/95 px-4 pb-3 backdrop-blur">
         <div className="flex items-center gap-2 pt-3">
@@ -132,15 +138,15 @@ export default function Catalog() {
               enterKeyHint="search"
               value={qInput}
               onChange={(e) => setQInput(e.target.value)}
-              placeholder="Поиск по товарам…"
-              aria-label="Поиск по товарам"
+              placeholder={t('catalog.search')}
+              aria-label={t('catalog.search')}
               className="h-10 pl-9 pr-9"
             />
             {qInput && (
               <button
                 type="button"
                 onClick={() => setQInput('')}
-                aria-label="Очистить поиск"
+                aria-label={t('catalog.clearSearch')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <X className="h-4 w-4" />
@@ -148,19 +154,84 @@ export default function Catalog() {
             )}
           </div>
           
+          <Button
+            variant="outline"
+            size="icon"
+            className="relative h-10 w-10 shrink-0"
+            onClick={() => setFiltersOpen((v) => !v)}
+            aria-label={t('catalog.filters')}
+            aria-expanded={filtersOpen}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {activeCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                {activeCount}
+              </span>
+            )}
+          </Button>
         </div>
 
-        {/* Быстрый фильтр по полу */}
+        {/* Категории: прокручиваемый ряд, виден на всех экранах */}
         <div className="flex gap-2 overflow-x-auto pb-2 pt-3 no-scrollbar">
-          <Chip active={gender === 'all'} onClick={() => setParam('gender', 'all')}>
-            Все
+          <Chip active={category === 'all'} onClick={() => setParam('category', 'all')}>
+            {t('common.all')}
           </Chip>
-          {GENDERS.map((g) => (
-            <Chip key={g} active={gender === g} onClick={() => setParam('gender', g)}>
-              {g}
+          {CATEGORIES.map((c) => (
+            <Chip key={c} active={category === c} onClick={() => setParam('category', c)}>
+              {tv('cat', c)}
             </Chip>
           ))}
         </div>
+
+        {/* Панель фильтров: пол, сезон, цена */}
+        {filtersOpen && (
+          <div className="space-y-3 pb-2 pt-1">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">{t('f.gender')}</div>
+              <div className="flex flex-wrap gap-2">
+                <Chip active={gender === 'all'} onClick={() => setParam('gender', 'all')}>
+                  {t('common.all')}
+                </Chip>
+                {GENDERS.map((g) => (
+                  <Chip key={g} active={gender === g} onClick={() => setParam('gender', g)}>
+                    {tv('gen', g)}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">{t('f.season')}</div>
+              <div className="flex flex-wrap gap-2">
+                <Chip active={season === 'all'} onClick={() => setParam('season', 'all')}>
+                  {t('common.all')}
+                </Chip>
+                {SEASONS.map((s) => (
+                  <Chip key={s} active={season === s} onClick={() => setParam('season', s)}>
+                    {tv('sea', s)}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-end gap-3">
+              <div className="w-40">
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">{t('catalog.maxPrice')}</div>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={maxPrice}
+                  onChange={(e) => setParam('maxPrice', e.target.value)}
+                  className="h-10"
+                />
+              </div>
+              {activeCount > 0 && (
+                <Button variant="ghost" size="sm" onClick={resetFilters}>
+                  {t('catalog.reset')}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -170,11 +241,11 @@ export default function Catalog() {
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <SearchX className="mb-4 h-12 w-12 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">Ничего не найдено</h2>
-          <p className="mt-1 text-muted-foreground">Попробуйте изменить параметры поиска</p>
+          <h2 className="text-lg font-semibold">{t('catalog.notFound')}</h2>
+          <p className="mt-1 text-muted-foreground">{t('catalog.tryChange')}</p>
           {(q || activeCount > 0) && (
             <Button variant="outline" className="mt-4" onClick={() => { setQInput(''); resetFilters(); }}>
-              Сбросить всё
+              {t('catalog.resetAll')}
             </Button>
           )}
         </div>

@@ -4,6 +4,7 @@ import { Heart, MapPin, MessageCircle, Phone, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/lib/i18n'
 import { formatPrice } from '@/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +15,7 @@ import type { Product } from '@/types'
 export default function ProductPage() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { t, tv } = useI18n()
   const [product, setProduct] = useState<Product | null>(null)
   const [activePhoto, setActivePhoto] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
@@ -41,20 +43,18 @@ export default function ProductPage() {
   }, [user, id])
 
   if (!product) {
-    return <div className="mx-auto max-w-6xl px-4 py-16 text-muted-foreground">Загрузка…</div>
+    return <div className="mx-auto max-w-6xl px-4 py-16 text-muted-foreground">{t('common.loading')}</div>
   }
 
   const rawPhone = product.shops?.phone ?? ''
   const digits = rawPhone.replace(/\D/g, '')
-  const phoneNumber = digits.length === 10 ? '7' + digits : digits.replace(/^8/, '7')
-  const rawMax = (product.shops?.max_url ?? '').trim()
-  const maxUrl = /^https?:\/\//i.test(rawMax) ? rawMax : rawMax ? `https://${rawMax}` : ''
-  const askText = `Здравствуйте! Вижу на сайте: «${product.title}» за ${formatPrice(product.price)}. Есть в наличии?`
+  const waNumber = digits.length === 10 ? '7' + digits : digits.replace(/^8/, '7')
+  const waText = encodeURIComponent(t('product.waMessage', { title: product.title, price: formatPrice(product.price) }))
   const photos = [...(product.product_photos ?? [])].sort((a, b) => a.position - b.position)
 
   const toggleFavorite = async () => {
     if (!user) {
-      toast.info('Войдите, чтобы добавлять в избранное')
+      toast.info(t('product.favLogin'))
       return
     }
     if (isFavorite) {
@@ -62,14 +62,14 @@ export default function ProductPage() {
       setIsFavorite(false)
     } else {
       const { error } = await supabase.from('favorites').insert({ user_id: user.id, product_id: product.id })
-      if (error) toast.error('Не удалось добавить в избранное')
+      if (error) toast.error(t('product.favFail'))
       else setIsFavorite(true)
     }
   }
 
   const sendReport = async () => {
     if (!reason.trim()) {
-      toast.error('Опишите причину жалобы')
+      toast.error(t('product.reportNeed'))
       return
     }
     const { error } = await supabase.from('reports').insert({
@@ -77,9 +77,9 @@ export default function ProductPage() {
       user_id: user?.id ?? null,
       reason: reason.trim(),
     })
-    if (error) toast.error('Не удалось отправить жалобу')
+    if (error) toast.error(t('product.reportFail'))
     else {
-      toast.success('Жалоба отправлена')
+      toast.success(t('product.reportOk'))
       setReportOpen(false)
       setReason('')
     }
@@ -93,7 +93,7 @@ export default function ProductPage() {
             {photos[activePhoto] ? (
               <img src={photos[activePhoto].url} alt={product.title} className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground">Нет фото</div>
+              <div className="flex h-full items-center justify-center text-muted-foreground">{t('product.noPhoto')}</div>
             )}
           </div>
           {photos.length > 1 && (
@@ -103,7 +103,7 @@ export default function ProductPage() {
                   key={p.id}
                   onClick={() => setActivePhoto(i)}
                   className={`h-16 w-16 border overflow-hidden ${i === activePhoto ? 'border-foreground' : 'opacity-70'}`}
-                  aria-label={`Фото ${i + 1}`}
+                  aria-label={t('product.photoN', { n: i + 1 })}
                 >
                   <img src={p.url} alt="" className="h-full w-full object-cover" />
                 </button>
@@ -114,8 +114,9 @@ export default function ProductPage() {
 
         <div className="space-y-5">
           <div className="flex flex-wrap gap-2">
-            {product.gender && <Badge variant="secondary">{product.gender}</Badge>}
-            {product.season && <Badge variant="secondary">{product.season}</Badge>}
+            <Badge variant="secondary">{tv('cat', product.category)}</Badge>
+            {product.gender && <Badge variant="secondary">{tv('gen', product.gender)}</Badge>}
+            {product.season && <Badge variant="secondary">{tv('sea', product.season)}</Badge>}
           </div>
 
           <h1 className="font-display text-3xl font-semibold leading-tight">{product.title}</h1>
@@ -123,13 +124,13 @@ export default function ProductPage() {
 
           {(product.product_sizes?.length ?? 0) > 0 && (
             <div>
-              <h2 className="text-sm font-semibold mb-2">Размеры в наличии</h2>
+              <h2 className="text-sm font-semibold mb-2">{t('product.sizesInStock')}</h2>
               <div className="flex flex-wrap gap-2">
                 {product.product_sizes!
                   .filter((s) => s.qty > 0)
                   .map((s) => (
                     <span key={s.size} className="rounded-full border px-3 py-1.5 text-sm">
-                      {s.size} · {s.qty} шт.
+                      {s.size} · {t('product.pcs', { n: s.qty })}
                     </span>
                   ))}
               </div>
@@ -138,65 +139,50 @@ export default function ProductPage() {
 
           {product.description && (
             <div>
-              <h2 className="text-sm font-semibold mb-1">Описание</h2>
+              <h2 className="text-sm font-semibold mb-1">{t('product.description')}</h2>
               <p className="text-muted-foreground whitespace-pre-line">{product.description}</p>
             </div>
           )}
 
-          {(maxUrl || digits) && (
+          {digits && (
             <div className="grid gap-2 sm:grid-cols-2">
-              {maxUrl && (
-                <Button asChild size="lg" className="h-12 rounded-xl bg-[#2F6BFF] text-base font-semibold text-white hover:bg-[#2457d6]">
-                  <a
-                    href={maxUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => {
-                      // В MAX нет ссылки с готовым текстом — копируем вопрос, остаётся вставить
-                      navigator.clipboard?.writeText(askText).then(
-                        () => toast.success('Вопрос скопирован — вставьте его в чат MAX'),
-                        () => {}
-                      )
-                    }}
-                  >
-                    <MessageCircle className="mr-2 h-5 w-5" /> Написать в MAX
-                  </a>
-                </Button>
-              )}
-              {digits && (
-                <Button asChild size="lg" variant="outline" className="h-12 rounded-xl text-base">
-                  <a href={`tel:+${phoneNumber}`}>
-                    <Phone className="mr-2 h-5 w-5" /> Позвонить
-                  </a>
-                </Button>
-              )}
+              <Button asChild size="lg" className="h-12 rounded-xl bg-[#25D366] text-base font-semibold text-white hover:bg-[#1ebe5b]">
+                <a href={`https://wa.me/${waNumber}?text=${waText}`} target="_blank" rel="noreferrer">
+                  <MessageCircle className="mr-2 h-5 w-5" /> {t('product.whatsapp')}
+                </a>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="h-12 rounded-xl text-base">
+                <a href={`tel:+${waNumber}`}>
+                  <Phone className="mr-2 h-5 w-5" /> {t('product.call')}
+                </a>
+              </Button>
             </div>
           )}
 
           <div className="flex flex-wrap gap-3 pt-2">
             <Button onClick={toggleFavorite} variant={isFavorite ? 'default' : 'outline'}>
               <Heart className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
-              {isFavorite ? 'В избранном' : 'В избранное'}
+              {isFavorite ? t('product.inFav') : t('product.fav')}
             </Button>
             <Dialog open={reportOpen} onOpenChange={setReportOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" className="text-muted-foreground">
-                  Пожаловаться
+                  {t('product.report')}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Жалоба на товар</DialogTitle>
+                  <DialogTitle>{t('product.reportTitle')}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
                   <Textarea
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    placeholder="Опишите проблему…"
+                    placeholder={t('product.reportPh')}
                     rows={4}
                   />
                   <Button onClick={sendReport} className="w-full">
-                    Отправить
+                    {t('product.send')}
                   </Button>
                 </div>
               </DialogContent>
@@ -209,7 +195,7 @@ export default function ProductPage() {
                 {product.shops.name}
                 {product.shops.verified && (
                   <Badge className="gap-1">
-                    <ShieldCheck className="h-3 w-3" /> Проверен
+                    <ShieldCheck className="h-3 w-3" /> {t('product.verifiedShop')}
                   </Badge>
                 )}
               </div>
@@ -229,7 +215,7 @@ export default function ProductPage() {
 
           <div>
             <Link to="/catalog" className="text-sm text-primary hover:underline">
-              ← Назад в каталог
+              {t('product.back')}
             </Link>
           </div>
         </div>

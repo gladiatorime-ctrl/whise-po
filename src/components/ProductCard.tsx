@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import type { Product } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { useI18n } from '@/lib/i18n'
 
 export function formatPrice(price: number) {
   return new Intl.NumberFormat('ru-RU').format(price) + ' ₽'
@@ -19,6 +20,7 @@ export default function ProductCard({
   onToggleFavorite: (id: string) => void
 }) {
   const { user } = useAuth()
+  const { t } = useI18n()
   const photo = [...(product.product_photos ?? [])].sort((a, b) => a.position - b.position)[0]
 
   const sizes = (product.product_sizes ?? []).filter((x) => x.qty > 0).map((x) => x.size)
@@ -26,7 +28,7 @@ export default function ProductCard({
   const toggle = async (e: React.MouseEvent) => {
     e.preventDefault()
     if (!user) {
-      toast.info('Войдите, чтобы добавлять в избранное')
+      toast.info(t('product.favLogin'))
       return
     }
     if (isFavorite) {
@@ -34,7 +36,7 @@ export default function ProductCard({
       onToggleFavorite(product.id)
     } else {
       const { error } = await supabase.from('favorites').insert({ user_id: user.id, product_id: product.id })
-      if (error) toast.error('Не удалось добавить в избранное')
+      if (error) toast.error(t('product.favFail'))
       else onToggleFavorite(product.id)
     }
   }
@@ -55,19 +57,19 @@ export default function ProductCard({
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-            Нет фото
+            {t('product.noPhoto')}
           </div>
         )}
 
         {product.shops?.verified && (
           <span className="absolute left-2 top-2 z-10 rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-medium leading-tight text-primary-foreground">
-            Проверенный
+            {t('product.verifiedBadge')}
           </span>
         )}
 
         <button
           onClick={toggle}
-          aria-label={isFavorite ? 'Убрать из избранного' : 'В избранное'}
+          aria-label={isFavorite ? t('product.removeFav') : t('product.fav')}
           className="absolute right-2 top-2 z-10 rounded-full border bg-card/90 p-2 transition-colors hover:border-foreground"
         >
           <Heart className={`h-4 w-4 ${isFavorite ? 'fill-primary text-primary' : ''}`} />
@@ -78,7 +80,7 @@ export default function ProductCard({
         <div className="text-lg font-bold tabular-nums leading-none">{formatPrice(product.price)}</div>
         <div className="line-clamp-2 text-sm leading-snug text-foreground">{product.title}</div>
         {sizes.length > 0 && (
-          <div className="truncate text-xs text-muted-foreground">Размеры: {sizes.join(', ')}</div>
+          <div className="truncate text-xs text-muted-foreground">{t('product.sizesShort', { sizes: sizes.join(', ') })}</div>
         )}
         {product.shops?.name && (
           <div className="mt-auto truncate pt-1 text-xs text-muted-foreground">{product.shops.name}</div>

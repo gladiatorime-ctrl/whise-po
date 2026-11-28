@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/hooks/useAuth'
+import { I18nProvider } from '@/lib/i18n'
 import Layout from '@/components/Layout'
 import Home from '@/pages/Home'
 import Catalog from '@/pages/Catalog'
@@ -16,6 +17,7 @@ import Admin from '@/pages/Admin'
 
 export default function App() {
   return (
+    <I18nProvider>
     <AuthProvider>
       <Routes>
         <Route element={<Layout />}>
@@ -35,5 +37,6 @@ export default function App() {
       </Routes>
       <Toaster position="top-center" richColors />
     </AuthProvider>
+    </I18nProvider>
   )
 }
